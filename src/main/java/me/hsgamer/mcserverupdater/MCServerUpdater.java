@@ -8,6 +8,7 @@ import me.hsgamer.mcserverupdater.api.Checksum;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
 import me.hsgamer.mcserverupdater.api.Updater;
 import me.hsgamer.mcserverupdater.updater.PaperUpdater;
+import me.hsgamer.mcserverupdater.updater.PurpurUpdater;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +25,7 @@ public final class MCServerUpdater {
 
     static {
         UPDATERS.put("paper", PaperUpdater::new);
+        UPDATERS.put("purpur", PurpurUpdater::new);
 
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.INFO);
