@@ -87,12 +87,26 @@ public final class MCServerUpdater {
         }
 
         File outputFile = new File(outputName);
-        if (updater instanceof Checksum && outputFile.exists()) {
-            LOGGER.info("Checking checksum...");
-            Checksum checksum = (Checksum) updater;
-            if (checksum.checksum(outputFile, versionName, buildName)) {
-                LOGGER.info("Checksum match. File already up to date.");
-                System.exit(0);
+        if (outputFile.exists()) {
+            if (updater instanceof Checksum) {
+                LOGGER.info("Checking checksum...");
+                Checksum checksum = (Checksum) updater;
+                if (checksum.checksum(outputFile, versionName, buildName)) {
+                    LOGGER.info("Checksum match. File already up to date.");
+                    System.exit(0);
+                    return;
+                }
+            }
+        } else {
+            File parent = outputFile.getParentFile();
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                LOGGER.severe("Could not create parent directory");
+                System.exit(1);
+                return;
+            }
+            if (!outputFile.createNewFile()) {
+                LOGGER.severe("Could not create output file");
+                System.exit(1);
                 return;
             }
         }
