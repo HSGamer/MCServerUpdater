@@ -1,6 +1,5 @@
 package me.hsgamer.mcserverupdater.api;
 
-import me.hsgamer.mcserverupdater.MCServerUpdater;
 import me.hsgamer.mcserverupdater.Utils;
 
 import java.io.File;
@@ -25,8 +24,8 @@ public interface DigestChecksum extends Checksum {
         messageDigest.update(Files.readAllBytes(file.toPath()));
         byte[] checksumValue = messageDigest.digest();
         String checksumString = Utils.toHex(checksumValue);
-        LOGGER.info("Checksum: " + checksumString);
-        LOGGER.info("Expected: " + checksumCode);
+        LOGGER.info(() -> "Checksum: " + checksumString);
+        LOGGER.info(() -> "Expected: " + checksumCode);
         return checksumString.equals(checksumCode);
     }
 }

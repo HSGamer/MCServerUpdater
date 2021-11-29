@@ -15,7 +15,7 @@ public interface InputStreamUpdater extends Updater {
     default boolean update(File file, String version, String build) throws IOException {
         try (InputStream inputStream = getInputStream(version, build)) {
             if (inputStream == null) {
-                MCServerUpdater.LOGGER.warning("Failed to get the input stream");
+                MCServerUpdater.LOGGER.severe("Failed to get the input stream");
                 return false;
             }
             Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);

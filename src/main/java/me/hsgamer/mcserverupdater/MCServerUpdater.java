@@ -60,9 +60,14 @@ public final class MCServerUpdater {
         String buildName = options.valueOf(build);
         String outputName = options.valueOf(output);
 
+        if (!Utils.checkInternetConnection()) {
+            LOGGER.severe("No internet connection");
+            System.exit(1);
+        }
+
         Optional<Updater> optionalUpdater = Optional.ofNullable(UPDATERS.get(projectName)).map(Supplier::get);
         if (optionalUpdater.isEmpty()) {
-            LOGGER.warning("Project not found");
+            LOGGER.severe("Project not found");
             System.exit(1);
             return;
         }
@@ -71,7 +76,7 @@ public final class MCServerUpdater {
         if (buildName.equalsIgnoreCase("latest") && updater instanceof LatestBuild) {
             buildName = ((LatestBuild) updater).getLatestBuild(versionName);
             if (buildName == null) {
-                LOGGER.warning("No build found");
+                LOGGER.severe("No build found");
                 System.exit(1);
                 return;
             }
@@ -92,7 +97,7 @@ public final class MCServerUpdater {
             LOGGER.info("Downloaded to " + outputFile.getAbsolutePath());
             System.exit(0);
         } else {
-            LOGGER.warning("Failed to download");
+            LOGGER.severe("Failed to download");
             System.exit(1);
         }
     }
