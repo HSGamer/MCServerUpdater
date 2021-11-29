@@ -2,12 +2,12 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
-import me.hsgamer.mcserverupdater.Utils;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +24,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
         String buildUrl = String.format(BUILD_URL, version, build);
         URLConnection connection = WebUtils.openConnection(buildUrl, UserAgent.CHROME);
         InputStream inputStream = connection.getInputStream();
-        String content = Utils.getContent(inputStream);
-        JSONObject jsonObject = new JSONObject(content);
+        JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
         JSONObject downloads = jsonObject.getJSONObject("downloads");
         return downloads.getJSONObject("application");
     }
@@ -72,8 +71,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
         try {
             URLConnection connection = WebUtils.openConnection(versionUrl, UserAgent.CHROME);
             InputStream inputStream = connection.getInputStream();
-            String content = Utils.getContent(inputStream);
-            JSONObject jsonObject = new JSONObject(content);
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("builds");
             return Integer.toString(builds.getInt(builds.length() - 1));
         } catch (Exception e) {

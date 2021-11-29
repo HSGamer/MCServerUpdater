@@ -2,10 +2,10 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
-import me.hsgamer.mcserverupdater.Utils;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,8 +44,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater {
         try {
             URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
             InputStream inputStream = connection.getInputStream();
-            String content = Utils.getContent(inputStream);
-            JSONObject jsonObject = new JSONObject(content);
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             return jsonObject.getString("md5");
         } catch (IOException e) {
             e.printStackTrace();
