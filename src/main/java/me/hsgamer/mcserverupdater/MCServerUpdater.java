@@ -97,6 +97,7 @@ public final class MCServerUpdater {
             }
         }
 
+        LOGGER.log(Level.INFO, "Downloading {0} {1} {2}", new Object[]{projectName, versionName, buildName});
         if (updater.update(outputFile, versionName, buildName)) {
             LOGGER.info("Downloaded to " + outputFile.getAbsolutePath());
             System.exit(0);
