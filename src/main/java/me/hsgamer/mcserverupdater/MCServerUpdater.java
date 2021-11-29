@@ -64,6 +64,7 @@ public final class MCServerUpdater {
         if (!options.valueOf(skipInternetCheck) && !Utils.checkInternetConnection()) {
             LOGGER.severe("No internet connection");
             System.exit(1);
+            return;
         }
 
         Optional<Updater> optionalUpdater = Optional.ofNullable(UPDATERS.get(projectName)).map(Supplier::get);
