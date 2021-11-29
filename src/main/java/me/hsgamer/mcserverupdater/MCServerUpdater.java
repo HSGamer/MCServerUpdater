@@ -44,6 +44,7 @@ public final class MCServerUpdater {
         OptionSpec<String> version = parser.accepts("version", "The Minecraft version").withRequiredArg().ofType(String.class).defaultsTo("1.17.1");
         OptionSpec<String> build = parser.accepts("build", "The build of the project to download").withRequiredArg().ofType(String.class).defaultsTo("latest");
         OptionSpec<String> output = parser.accepts("output", "The output file path").withRequiredArg().ofType(String.class).defaultsTo("server.jar");
+        OptionSpec<Boolean> skipInternetCheck = parser.accepts("skip-internet-check", "Skip the internet check").withOptionalArg().ofType(Boolean.class).defaultsTo(false);
         OptionSet options = parser.parse(args);
         if (options.has(help)) {
             StringWriter writer = new StringWriter();
@@ -60,7 +61,7 @@ public final class MCServerUpdater {
         String buildName = options.valueOf(build);
         String outputName = options.valueOf(output);
 
-        if (!Utils.checkInternetConnection()) {
+        if (!options.valueOf(skipInternetCheck) && !Utils.checkInternetConnection()) {
             LOGGER.severe("No internet connection");
             System.exit(1);
         }
