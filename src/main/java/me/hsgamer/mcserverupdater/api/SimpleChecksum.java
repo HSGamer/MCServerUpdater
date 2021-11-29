@@ -1,17 +1,13 @@
 package me.hsgamer.mcserverupdater.api;
 
-import me.hsgamer.mcserverupdater.Utils;
-
 import java.io.File;
-import java.nio.file.Files;
-import java.security.MessageDigest;
 
 import static me.hsgamer.mcserverupdater.MCServerUpdater.LOGGER;
 
-public interface DigestChecksum extends Checksum {
+public interface SimpleChecksum extends Checksum {
     String getChecksum(String version, String build);
 
-    MessageDigest getMessageDigest() throws Exception;
+    String getFileChecksum(File file) throws Exception;
 
     @Override
     default boolean checksum(File file, String version, String build) throws Exception {
@@ -20,10 +16,7 @@ public interface DigestChecksum extends Checksum {
             LOGGER.warning("Checksum not found");
             return false;
         }
-        MessageDigest messageDigest = getMessageDigest();
-        messageDigest.update(Files.readAllBytes(file.toPath()));
-        byte[] checksumValue = messageDigest.digest();
-        String checksumString = Utils.toHex(checksumValue);
+        String checksumString = getFileChecksum(file);
         LOGGER.info(() -> "Checksum: " + checksumString);
         LOGGER.info(() -> "Expected: " + checksumCode);
         return checksumString.equals(checksumCode);
