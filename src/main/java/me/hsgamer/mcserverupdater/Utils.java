@@ -6,6 +6,8 @@ import me.hsgamer.hscore.web.WebUtils;
 import java.io.File;
 import java.io.IOException;
 
+import static me.hsgamer.mcserverupdater.MCServerUpdater.LOGGER;
+
 public class Utils {
     private Utils() {
         // EMPTY
@@ -31,11 +33,11 @@ public class Utils {
     public static boolean isFailedToCreateFile(File file) throws IOException {
         File parent = file.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            MCServerUpdater.LOGGER.severe("Could not create parent directory");
+            LOGGER.severe("Could not create parent directory");
             return true;
         }
         if (!file.createNewFile()) {
-            MCServerUpdater.LOGGER.severe("Could not create output file");
+            LOGGER.severe("Could not create output file");
             return true;
         }
         return false;
