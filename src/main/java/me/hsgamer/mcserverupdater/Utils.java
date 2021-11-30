@@ -28,16 +28,16 @@ public class Utils {
         }
     }
 
-    public static boolean createFile(File file) throws IOException {
+    public static boolean isFailedToCreateFile(File file) throws IOException {
         File parent = file.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
             MCServerUpdater.LOGGER.severe("Could not create parent directory");
-            return false;
+            return true;
         }
         if (!file.createNewFile()) {
             MCServerUpdater.LOGGER.severe("Could not create output file");
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 }

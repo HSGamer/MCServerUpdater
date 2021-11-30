@@ -73,7 +73,7 @@ public abstract class JenkinsUpdater implements InputStreamUpdater, SimpleChecks
 
     private File getChecksumFile() throws IOException {
         File file = new File("jenkins.build");
-        if (!file.exists() && !Utils.createFile(file)) {
+        if (!file.exists() && Utils.isFailedToCreateFile(file)) {
             throw new IOException("Can't create file " + file.getAbsolutePath());
         }
         return file;

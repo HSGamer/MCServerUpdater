@@ -122,7 +122,7 @@ public final class MCServerUpdater {
                 }
             }
         } else {
-            if (!Utils.createFile(outputFile)) {
+            if (Utils.isFailedToCreateFile(outputFile)) {
                 LOGGER.severe("Failed to create output file");
                 System.exit(1);
                 return;
