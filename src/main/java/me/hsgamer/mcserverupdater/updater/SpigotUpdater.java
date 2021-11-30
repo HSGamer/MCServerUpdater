@@ -39,7 +39,7 @@ public class SpigotUpdater implements Updater {
         }
         File outputDir = new File("output");
         try (URLClassLoader classLoader = new URLClassLoader(new URL[]{buildTools.toURI().toURL()}, getClass().getClassLoader())) {
-            Class<?> clazz = Class.forName("org.spigotmc.builder.Builder", true, classLoader);
+            Class<?> clazz = Class.forName("org.spigotmc.builder.Bootstrap", true, classLoader);
             Method method = clazz.getMethod("main", String[].class);
             method.invoke(null, (Object) new String[]{
                     "--rev", version,
