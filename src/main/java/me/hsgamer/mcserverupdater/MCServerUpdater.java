@@ -8,6 +8,7 @@ import me.hsgamer.mcserverupdater.api.Checksum;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
 import me.hsgamer.mcserverupdater.api.Updater;
 import me.hsgamer.mcserverupdater.updater.AirplaneUpdater;
+import me.hsgamer.mcserverupdater.updater.BungeeCordUpdater;
 import me.hsgamer.mcserverupdater.updater.PaperUpdater;
 import me.hsgamer.mcserverupdater.updater.PurpurUpdater;
 
@@ -31,6 +32,7 @@ public final class MCServerUpdater {
         UPDATERS.put("velocity", () -> new PaperUpdater("velocity"));
         UPDATERS.put("purpur", PurpurUpdater::new);
         UPDATERS.put("airplane", AirplaneUpdater::new);
+        UPDATERS.put("bungeecord", BungeeCordUpdater::new);
 
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.INFO);
@@ -46,9 +48,10 @@ public final class MCServerUpdater {
 
     public static void main(String[] args) throws Exception {
         OptionParser parser = new OptionParser();
-        OptionSpec<Void> help = parser.accepts("help").forHelp();
-        OptionSpec<String> project = parser.accepts("project", "The Minecraft project to download").withRequiredArg().ofType(String.class).defaultsTo("paper");
-        OptionSpec<String> version = parser.accepts("version", "The Minecraft version").withRequiredArg().ofType(String.class).defaultsTo("1.17.1");
+        OptionSpec<Void> help = parser.accepts("help", "Get the list of arguments").forHelp();
+        OptionSpec<Void> projects = parser.accepts("projects", "Get the list of projects").forHelp();
+        OptionSpec<String> project = parser.accepts("project", "The project to download").withRequiredArg().ofType(String.class).defaultsTo("paper");
+        OptionSpec<String> version = parser.accepts("version", "The project version").withRequiredArg().ofType(String.class).defaultsTo("default");
         OptionSpec<String> build = parser.accepts("build", "The build of the project to download").withRequiredArg().ofType(String.class).defaultsTo("latest");
         OptionSpec<String> output = parser.accepts("output", "The output file path").withRequiredArg().ofType(String.class).defaultsTo("server.jar");
         OptionSpec<Boolean> skipInternetCheck = parser.accepts("skip-internet-check", "Skip the internet check").withOptionalArg().ofType(Boolean.class).defaultsTo(false);
@@ -59,6 +62,13 @@ public final class MCServerUpdater {
             BufferedReader reader = new BufferedReader(new StringReader(writer.toString()));
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 LOGGER.info(line);
+            }
+            System.exit(0);
+            return;
+        }
+        if (options.has(projects)) {
+            for (String key : UPDATERS.keySet()) {
+                LOGGER.info(key);
             }
             System.exit(0);
             return;
@@ -81,6 +91,15 @@ public final class MCServerUpdater {
             return;
         }
         Updater updater = optionalUpdater.get();
+
+        if (versionName.equalsIgnoreCase("default")) {
+            versionName = updater.getDefaultVersion();
+            if (versionName == null) {
+                LOGGER.severe("No default version");
+                System.exit(1);
+                return;
+            }
+        }
 
         if (buildName.equalsIgnoreCase("latest") && updater instanceof LatestBuild) {
             buildName = ((LatestBuild) updater).getLatestBuild(versionName);

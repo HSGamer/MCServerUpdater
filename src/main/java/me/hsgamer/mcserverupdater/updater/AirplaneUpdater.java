@@ -20,4 +20,9 @@ public class AirplaneUpdater extends JenkinsUpdater {
     public String getArtifactName(String version, String build) {
         return "launcher-airplane.jar";
     }
+
+    @Override
+    public String getDefaultVersion() {
+        return "1.17.1";
+    }
 }

@@ -15,13 +15,14 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 
 public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, LatestBuild {
+    private final String projectUrl;
     private final String versionUrl;
     private final String buildUrl;
     private final String downloadUrl;
 
     public PaperUpdater(String project) {
-        String url = String.format("https://papermc.io/api/v2/projects/%s/", project);
-        versionUrl = url + "versions/%s/";
+        projectUrl = String.format("https://papermc.io/api/v2/projects/%s/", project);
+        versionUrl = projectUrl + "versions/%s/";
         buildUrl = versionUrl + "builds/%s/";
         downloadUrl = buildUrl + "downloads/%s";
     }
@@ -80,6 +81,20 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("builds");
             return Integer.toString(builds.getInt(builds.length() - 1));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public String getDefaultVersion() {
+        try {
+            URLConnection connection = WebUtils.openConnection(projectUrl, UserAgent.CHROME);
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            JSONArray builds = jsonObject.getJSONArray("versions");
+            return builds.getString(builds.length() - 1);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

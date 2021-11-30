@@ -51,4 +51,9 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater {
             return null;
         }
     }
+
+    @Override
+    public String getDefaultVersion() {
+        return "1.17.1";
+    }
 }
