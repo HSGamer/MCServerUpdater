@@ -12,7 +12,7 @@ public class BungeeCordUpdater extends JenkinsUpdater {
 
     @Override
     public String getArtifactName(String version, String build) {
-        return "BungeeCord.jar";
+        return "bootstrap/target/BungeeCord.jar";
     }
 
     @Override
