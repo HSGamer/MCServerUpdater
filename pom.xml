@@ -6,13 +6,14 @@
 
     <groupId>me.hsgamer</groupId>
     <artifactId>mc-server-updater</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <name>MCServerUpdater</name>
     <description>A program to update Minecraft server jar</description>
 
     <properties>
         <java.version>11</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
