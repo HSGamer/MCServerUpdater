@@ -47,9 +47,7 @@ public abstract class JenkinsUpdater implements InputStreamUpdater, SimpleChecks
 
     @Override
     public InputStream getInputStream(String version, String build) {
-        String artifact = getArtifactName(version, build);
-        String job = getJob(version);
-        String url = String.format(artifactUrl, job, build, artifact);
+        String url = getArtifactUrl(version, build);
         try {
             URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
             return connection.getInputStream();
@@ -83,8 +81,7 @@ public abstract class JenkinsUpdater implements InputStreamUpdater, SimpleChecks
 
     @Override
     public String getLatestBuild(String version) {
-        String job = getJob(version);
-        String url = String.format(jobUrl, job);
+        String url = getJobUrl(version);
         String api = url + "api/json";
         String treeUrl = api + "?tree=lastSuccessfulBuild[number]";
         try {
@@ -101,5 +98,16 @@ public abstract class JenkinsUpdater implements InputStreamUpdater, SimpleChecks
 
     public String getJenkinsUrl() {
         return jenkinsUrl;
+    }
+
+    public String getJobUrl(String version) {
+        String job = getJob(version);
+        return String.format(jobUrl, job);
+    }
+
+    public String getArtifactUrl(String version, String build) {
+        String artifact = getArtifactName(version, build);
+        String job = getJob(version);
+        return String.format(artifactUrl, job, build, artifact);
     }
 }
