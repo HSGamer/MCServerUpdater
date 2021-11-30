@@ -7,10 +7,7 @@ import me.hsgamer.hscore.collections.map.CaseInsensitiveStringHashMap;
 import me.hsgamer.mcserverupdater.api.Checksum;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
 import me.hsgamer.mcserverupdater.api.Updater;
-import me.hsgamer.mcserverupdater.updater.AirplaneUpdater;
-import me.hsgamer.mcserverupdater.updater.BungeeCordUpdater;
-import me.hsgamer.mcserverupdater.updater.PaperUpdater;
-import me.hsgamer.mcserverupdater.updater.PurpurUpdater;
+import me.hsgamer.mcserverupdater.updater.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,6 +30,7 @@ public final class MCServerUpdater {
         UPDATERS.put("purpur", PurpurUpdater::new);
         UPDATERS.put("airplane", AirplaneUpdater::new);
         UPDATERS.put("bungeecord", BungeeCordUpdater::new);
+        UPDATERS.put("spigot", SpigotUpdater::new);
 
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.INFO);
