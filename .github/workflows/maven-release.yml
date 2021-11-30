@@ -1,8 +1,8 @@
-name: Build & Upload
+name: Build & Release
 
 on:
   push:
-    branches: [ master ]
+    tags: [ "*" ]
 
 jobs:
   build:
@@ -22,3 +22,10 @@ jobs:
         with:
           name: "MCServerUpdater"
           path: "./target/MCServerUpdater.jar"
+      - name: "Release"
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            ./target/MCServerUpdater.jar
