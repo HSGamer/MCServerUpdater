@@ -51,6 +51,7 @@ public class SpigotUpdater implements Updater {
                 String name = outputFile.getName();
                 if (name.startsWith("spigot-") && name.endsWith(".jar")) {
                     Files.copy(outputFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.delete(outputFile.toPath());
                     break;
                 }
             }
