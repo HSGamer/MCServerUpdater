@@ -15,14 +15,20 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 
 public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, LatestBuild {
-    private static final String URL = "https://papermc.io/api/v2/projects/paper/";
-    private static final String VERSION_URL = URL + "versions/%s/";
-    private static final String BUILD_URL = VERSION_URL + "builds/%s/";
-    private static final String DOWNLOAD_URL = BUILD_URL + "downloads/%s";
+    private final String versionUrl;
+    private final String buildUrl;
+    private final String downloadUrl;
+
+    public PaperUpdater(String project) {
+        String url = String.format("https://papermc.io/api/v2/projects/%s/", project);
+        versionUrl = url + "versions/%s/";
+        buildUrl = versionUrl + "builds/%s/";
+        downloadUrl = buildUrl + "downloads/%s";
+    }
 
     private JSONObject getDownload(String version, String build) throws IOException {
-        String buildUrl = String.format(BUILD_URL, version, build);
-        URLConnection connection = WebUtils.openConnection(buildUrl, UserAgent.CHROME);
+        String formattedUrl = String.format(buildUrl, version, build);
+        URLConnection connection = WebUtils.openConnection(formattedUrl, UserAgent.CHROME);
         InputStream inputStream = connection.getInputStream();
         JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
         JSONObject downloads = jsonObject.getJSONObject("downloads");
@@ -55,9 +61,9 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
             e.printStackTrace();
             return null;
         }
-        String downloadUrl = String.format(DOWNLOAD_URL, version, build, fileName);
+        String formattedUrl = String.format(downloadUrl, version, build, fileName);
         try {
-            URLConnection connection = WebUtils.openConnection(downloadUrl, UserAgent.CHROME);
+            URLConnection connection = WebUtils.openConnection(formattedUrl, UserAgent.CHROME);
             return connection.getInputStream();
         } catch (Exception e) {
             e.printStackTrace();
@@ -67,9 +73,9 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
 
     @Override
     public String getLatestBuild(String version) {
-        String versionUrl = String.format(VERSION_URL, version);
+        String formattedUrl = String.format(versionUrl, version);
         try {
-            URLConnection connection = WebUtils.openConnection(versionUrl, UserAgent.CHROME);
+            URLConnection connection = WebUtils.openConnection(formattedUrl, UserAgent.CHROME);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("builds");

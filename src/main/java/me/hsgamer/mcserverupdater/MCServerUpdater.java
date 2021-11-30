@@ -7,6 +7,7 @@ import me.hsgamer.hscore.collections.map.CaseInsensitiveStringHashMap;
 import me.hsgamer.mcserverupdater.api.Checksum;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
 import me.hsgamer.mcserverupdater.api.Updater;
+import me.hsgamer.mcserverupdater.updater.AirplaneUpdater;
 import me.hsgamer.mcserverupdater.updater.PaperUpdater;
 import me.hsgamer.mcserverupdater.updater.PurpurUpdater;
 
@@ -24,8 +25,12 @@ public final class MCServerUpdater {
     private static final Map<String, Supplier<Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
 
     static {
-        UPDATERS.put("paper", PaperUpdater::new);
+        UPDATERS.put("paper", () -> new PaperUpdater("paper"));
+        UPDATERS.put("travertine", () -> new PaperUpdater("travertine"));
+        UPDATERS.put("waterfall", () -> new PaperUpdater("waterfall"));
+        UPDATERS.put("velocity", () -> new PaperUpdater("velocity"));
         UPDATERS.put("purpur", PurpurUpdater::new);
+        UPDATERS.put("airplane", AirplaneUpdater::new);
 
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.INFO);
@@ -98,14 +103,8 @@ public final class MCServerUpdater {
                 }
             }
         } else {
-            File parent = outputFile.getParentFile();
-            if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                LOGGER.severe("Could not create parent directory");
-                System.exit(1);
-                return;
-            }
-            if (!outputFile.createNewFile()) {
-                LOGGER.severe("Could not create output file");
+            if (!Utils.createFile(outputFile)) {
+                LOGGER.severe("Failed to create output file");
                 System.exit(1);
                 return;
             }
