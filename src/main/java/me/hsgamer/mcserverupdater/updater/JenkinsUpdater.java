@@ -3,16 +3,17 @@ package me.hsgamer.mcserverupdater.updater;
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.Utils;
-import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
-import me.hsgamer.mcserverupdater.api.SimpleChecksum;
+import me.hsgamer.mcserverupdater.api.SimpleChecksumInputStreamUpdater;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLConnection;
 
-public abstract class JenkinsUpdater implements InputStreamUpdater, SimpleChecksum, LatestBuild {
+public abstract class JenkinsUpdater implements SimpleChecksumInputStreamUpdater, LatestBuild {
     private final String jenkinsUrl;
     private final String jobUrl;
     private final String artifactUrl;
@@ -29,20 +30,7 @@ public abstract class JenkinsUpdater implements InputStreamUpdater, SimpleChecks
 
     @Override
     public String getChecksum(String version, String build) {
-        return String.join("||", version, build, getJob(version), jenkinsUrl);
-    }
-
-    @Override
-    public String getFileChecksum(File file) throws Exception {
-        File checksumFile = getChecksumFile();
-        try (BufferedReader reader = new BufferedReader(new FileReader(checksumFile))) {
-            StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-            }
-            return builder.toString();
-        }
+        return String.join("||", version, build, getJob(version), getJenkinsUrl());
     }
 
     @Override
@@ -58,25 +46,8 @@ public abstract class JenkinsUpdater implements InputStreamUpdater, SimpleChecks
     }
 
     @Override
-    public boolean update(File file, String version, String build) throws IOException {
-        boolean success = InputStreamUpdater.super.update(file, version, build);
-        if (success) {
-            File checksumFile = getChecksumFile();
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(checksumFile))) {
-                writer.write(getChecksum(version, build));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return success;
-    }
-
-    private File getChecksumFile() throws IOException {
-        File file = new File("jenkins.build");
-        if (!file.exists() && Utils.isFailedToCreateFile(file)) {
-            throw new IOException("Can't create file " + file.getAbsolutePath());
-        }
-        return file;
+    public File getChecksumFile() throws IOException {
+        return Utils.getFile("jenkins.build");
     }
 
     @Override

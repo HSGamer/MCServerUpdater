@@ -31,6 +31,7 @@ public final class MCServerUpdater {
         UPDATERS.put("airplane", AirplaneUpdater::new);
         UPDATERS.put("bungeecord", BungeeCordUpdater::new);
         UPDATERS.put("spigot", SpigotUpdater::new);
+        UPDATERS.put("patina", PatinaUpdater::new);
 
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.INFO);
