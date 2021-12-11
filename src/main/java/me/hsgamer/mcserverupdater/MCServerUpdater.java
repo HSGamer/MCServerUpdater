@@ -23,15 +23,16 @@ public final class MCServerUpdater {
     private static final Map<String, Supplier<Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
 
     static {
-        UPDATERS.put("paper", () -> new PaperUpdater("paper"));
-        UPDATERS.put("travertine", () -> new PaperUpdater("travertine"));
-        UPDATERS.put("waterfall", () -> new PaperUpdater("waterfall"));
-        UPDATERS.put("velocity", () -> new PaperUpdater("velocity"));
-        UPDATERS.put("purpur", PurpurUpdater::new);
-        UPDATERS.put("airplane", AirplaneUpdater::new);
-        UPDATERS.put("bungeecord", BungeeCordUpdater::new);
-        UPDATERS.put("spigot", SpigotUpdater::new);
-        UPDATERS.put("patina", PatinaUpdater::new);
+        registerUpdater(() -> new PaperUpdater("paper"), "paper", "papermc", "paperspigot");
+        registerUpdater(() -> new PaperUpdater("travertine"), "travertine");
+        registerUpdater(() -> new PaperUpdater("waterfall"), "waterfall");
+        registerUpdater(() -> new PaperUpdater("velocity"), "velocity");
+        registerUpdater(PurpurUpdater::new, "purpur", "purpurmc");
+        registerUpdater(AirplaneUpdater::new, "airplane");
+        registerUpdater(BungeeCordUpdater::new, "bungeecord", "bungee");
+        registerUpdater(SpigotUpdater::new, "spigot", "spigotmc");
+        registerUpdater(PatinaUpdater::new, "patina", "patinamc");
+        registerUpdater(NachoSpigotUpdater::new, "nacho", "nachospigot");
 
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.INFO);
@@ -43,6 +44,12 @@ public final class MCServerUpdater {
         });
         LOGGER.addHandler(handler);
         LOGGER.setUseParentHandlers(false);
+    }
+
+    private static void registerUpdater(Supplier<Updater> updater, String... names) {
+        for (String name : names) {
+            UPDATERS.put(name, updater);
+        }
     }
 
     public static void main(String[] args) throws Exception {

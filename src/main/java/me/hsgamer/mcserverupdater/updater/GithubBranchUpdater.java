@@ -4,7 +4,7 @@ import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.Utils;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
-import me.hsgamer.mcserverupdater.api.SimpleChecksumInputStreamUpdater;
+import me.hsgamer.mcserverupdater.api.SimpleFileUpdater;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-public abstract class GithubBranchUpdater implements SimpleChecksumInputStreamUpdater, LatestBuild {
+public abstract class GithubBranchUpdater implements SimpleFileUpdater, LatestBuild {
     private final String refLatestCommitUrl;
     private final String downloadUrl;
 

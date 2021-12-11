@@ -6,7 +6,7 @@
 
     <groupId>me.hsgamer</groupId>
     <artifactId>mc-server-updater</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 
     <name>MCServerUpdater</name>
     <description>A program to update Minecraft server jar</description>

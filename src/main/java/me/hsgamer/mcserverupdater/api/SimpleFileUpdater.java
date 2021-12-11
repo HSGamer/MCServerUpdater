@@ -5,7 +5,7 @@ import me.hsgamer.mcserverupdater.Utils;
 import java.io.File;
 import java.io.IOException;
 
-public interface SimpleChecksumInputStreamUpdater extends SimpleChecksum, InputStreamUpdater {
+public interface SimpleFileUpdater extends SimpleChecksum, InputStreamUpdater {
     File getChecksumFile() throws IOException;
 
     @Override

@@ -4,6 +4,8 @@ import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 
 import java.io.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static me.hsgamer.mcserverupdater.MCServerUpdater.LOGGER;
 
@@ -74,6 +76,24 @@ public class Utils {
     private static void createFile(File file) throws IOException {
         if (!file.exists() && !file.createNewFile()) {
             throw new IOException("Can't create file " + file.getAbsolutePath());
+        }
+    }
+
+    public static InputStream getExtractedInputStream(InputStream zipStream, String fileToExtract) throws IOException {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ZipInputStream zipInputStream = new ZipInputStream(zipStream)) {
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                if (entry.getName().equals(fileToExtract)) {
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = zipInputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, length);
+                    }
+                    break;
+                }
+            }
+            return new ByteArrayInputStream(outputStream.toByteArray());
         }
     }
 }
