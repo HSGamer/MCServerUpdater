@@ -1,10 +1,14 @@
 # MCServerUpdater
+
 > This is a simple program that will check for updates to Minecraft server jar and download them if they are available.
 
 ## Download
-Download the latest version of MCServerUpdater from [here](https://github.com/HSGamer/MCServerUpdater/releases/tag/1.0.1)
+
+Download the latest version of MCServerUpdater
+from [here](https://github.com/HSGamer/MCServerUpdater/releases/tag/1.0.1)
 
 ## Arguments
+
 ```
 Option                           Description
 ------                           -----------
@@ -18,16 +22,17 @@ Option                           Description
 ```
 
 ## Examples
+
 * List all available projects
-  * `java -jar MCServerUpdater.jar --projects`
+    * `java -jar MCServerUpdater.jar --projects`
 * Download the latest build of Paper
-  * `java -jar MCServerUpdater.jar`
-  * `java -jar MCServerUpdater.jar --project paper`
+    * `java -jar MCServerUpdater.jar`
+    * `java -jar MCServerUpdater.jar --project paper`
 * Download the latest build of Paper and save it to the file `server.jar`
-  * `java -jar MCServerUpdater.jar --output server.jar`
-  * `java -jar MCServerUpdater.jar --project paper --output server.jar`
+    * `java -jar MCServerUpdater.jar --output server.jar`
+    * `java -jar MCServerUpdater.jar --project paper --output server.jar`
 * Download the latest build of Airplane 1.17.1
-  * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1`
-  * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1 --build latest`
+    * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1`
+    * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1 --build latest`
 * Download the #106 build of Airplane 1.17.1
-  * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1 --build 106`
+    * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1 --build 106`
