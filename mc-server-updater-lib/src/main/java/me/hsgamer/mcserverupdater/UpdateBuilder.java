@@ -54,20 +54,12 @@ public final class UpdateBuilder {
     }
 
     public UpdateBuilder version(String version) {
-        if (updater != null && version.equalsIgnoreCase("default")) {
-            this.version = updater.getDefaultVersion();
-        } else {
-            this.version = version;
-        }
+        this.version = version;
         return this;
     }
 
     public UpdateBuilder build(String build) {
-        if (updater != null && version != null && build.equalsIgnoreCase("latest") && updater instanceof LatestBuild) {
-            this.build = ((LatestBuild) updater).getLatestBuild(version);
-        } else {
-            this.build = build;
-        }
+        this.build = build;
         return this;
     }
 
@@ -77,16 +69,23 @@ public final class UpdateBuilder {
     }
 
     public UpdateBuilder outputFile(String outputFile) {
-        this.outputFile = new File(outputFile);
-        return this;
+        return outputFile(new File(outputFile));
     }
 
     public UpdateStatus execute() throws Exception {
         if (updater == null) {
             return UpdateStatus.NO_PROJECT;
         }
+
+        if (version.equalsIgnoreCase("default")) {
+            version = updater.getDefaultVersion();
+        }
         if (version == null) {
             return UpdateStatus.NO_VERSION;
+        }
+
+        if (build.equalsIgnoreCase("latest") && updater instanceof LatestBuild) {
+            build = ((LatestBuild) updater).getLatestBuild(version);
         }
         if (build == null) {
             return UpdateStatus.NO_BUILD;
@@ -99,10 +98,8 @@ public final class UpdateBuilder {
                     return UpdateStatus.UP_TO_DATE;
                 }
             }
-        } else {
-            if (Utils.isFailedToCreateFile(outputFile)) {
-                return UpdateStatus.FILE_FAILED;
-            }
+        } else if (Utils.isFailedToCreateFile(outputFile)) {
+            return UpdateStatus.FILE_FAILED;
         }
 
         return updater.update(outputFile, version, build)
