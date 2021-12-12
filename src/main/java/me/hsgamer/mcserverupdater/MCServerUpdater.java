@@ -28,11 +28,15 @@ public final class MCServerUpdater {
         registerUpdater(() -> new PaperUpdater("waterfall"), "waterfall");
         registerUpdater(() -> new PaperUpdater("velocity"), "velocity");
         registerUpdater(PurpurUpdater::new, "purpur", "purpurmc");
-        registerUpdater(AirplaneUpdater::new, "airplane");
+        registerUpdater(() -> {
+            MCServerUpdater.LOGGER.warning("Airplane will be deprecated soon, consider using another updater.");
+            return new AirplaneUpdater();
+        }, "airplane");
         registerUpdater(BungeeCordUpdater::new, "bungeecord", "bungee");
         registerUpdater(SpigotUpdater::new, "spigot", "spigotmc");
         registerUpdater(PatinaUpdater::new, "patina", "patinamc");
         registerUpdater(NachoSpigotUpdater::new, "nacho", "nachospigot");
+        registerUpdater(BurritoSpigotUpdater::new, "burrito", "burritospigot");
 
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.INFO);

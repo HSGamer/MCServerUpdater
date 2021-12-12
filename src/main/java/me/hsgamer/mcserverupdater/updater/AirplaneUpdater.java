@@ -1,11 +1,8 @@
 package me.hsgamer.mcserverupdater.updater;
 
-import me.hsgamer.mcserverupdater.MCServerUpdater;
-
 public class AirplaneUpdater extends JenkinsUpdater {
     public AirplaneUpdater() {
         super("https://ci.tivy.ca/");
-        MCServerUpdater.LOGGER.warning("Airplane will be deprecated soon, please consider using another updater.");
     }
 
     @Override

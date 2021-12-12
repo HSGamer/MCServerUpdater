@@ -5,6 +5,7 @@ import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.Utils;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
 import me.hsgamer.mcserverupdater.api.SimpleFileUpdater;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -13,23 +14,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-public abstract class GithubBranchUpdater implements SimpleFileUpdater, LatestBuild {
-    private final String refLatestCommitUrl;
+public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestBuild {
+    private final String repo;
+    private final String releasesUrl;
     private final String downloadUrl;
 
-    protected GithubBranchUpdater(String repo) {
-        String apiUrl = "https://api.github.com/repos/" + repo + "/";
-        this.refLatestCommitUrl = apiUrl + "commits/heads/%s";
-        this.downloadUrl = "https://github.com/" + repo + "/raw/%s/%s";
+    protected GithubReleaseUpdater(String repo) {
+        this.repo = repo;
+        this.releasesUrl = "https://api.github.com/repos/" + repo + "/releases";
+        this.downloadUrl = "https://github.com/" + repo + "/releases/download/%s/%s";
     }
 
-    public abstract String getBranch(String version);
-
-    public abstract String getFile(String version, String build);
+    public abstract String getArtifact(String version, String build);
 
     @Override
     public InputStream getInputStream(String version, String build) {
-        String url = String.format(downloadUrl, build, getFile(version, build));
+        String url = String.format(downloadUrl, build, getArtifact(version, build));
         try {
             URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
             return connection.getInputStream();
@@ -41,12 +41,13 @@ public abstract class GithubBranchUpdater implements SimpleFileUpdater, LatestBu
 
     @Override
     public String getLatestBuild(String version) {
-        String url = String.format(refLatestCommitUrl, getBranch(version));
+        String url = releasesUrl + "?per_page=1";
         try {
             URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
             InputStream inputStream = connection.getInputStream();
-            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-            return jsonObject.getString("sha");
+            JSONArray array = new JSONArray(new JSONTokener(inputStream));
+            JSONObject object = array.getJSONObject(0);
+            return object.getString("tag_name");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -55,11 +56,11 @@ public abstract class GithubBranchUpdater implements SimpleFileUpdater, LatestBu
 
     @Override
     public String getChecksum(String version, String build) {
-        return build;
+        return repo + "||" + build;
     }
 
     @Override
     public File getChecksumFile() throws IOException {
-        return Utils.getFile("github.commit");
+        return Utils.getFile("github.release");
     }
 }

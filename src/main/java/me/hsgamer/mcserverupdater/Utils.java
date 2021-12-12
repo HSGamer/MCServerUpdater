@@ -7,8 +7,6 @@ import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static me.hsgamer.mcserverupdater.MCServerUpdater.LOGGER;
-
 public class Utils {
     private Utils() {
         // EMPTY
@@ -34,14 +32,9 @@ public class Utils {
     public static boolean isFailedToCreateFile(File file) throws IOException {
         File parent = file.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            LOGGER.severe("Could not create parent directory");
             return true;
         }
-        if (!file.createNewFile()) {
-            LOGGER.severe("Could not create output file");
-            return true;
-        }
-        return false;
+        return !file.createNewFile();
     }
 
     public static String getString(File file) throws IOException {

@@ -18,4 +18,9 @@ public class PatinaUpdater extends GithubBranchUpdater {
             return "Patina-" + version + "-R0.1-SNAPSHOT.jar";
         }
     }
+
+    @Override
+    public String getDefaultVersion() {
+        return "1.17.1";
+    }
 }
