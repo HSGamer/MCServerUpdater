@@ -2,8 +2,8 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
-import me.hsgamer.mcserverupdater.Utils;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
+import me.hsgamer.mcserverupdater.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;

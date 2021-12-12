@@ -1,7 +1,4 @@
-package me.hsgamer.mcserverupdater;
-
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+package me.hsgamer.mcserverupdater.util;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
@@ -18,15 +15,6 @@ public class Utils {
             builder.append(String.format("%02x", b));
         }
         return builder.toString();
-    }
-
-    public static boolean checkInternetConnection() {
-        try {
-            WebUtils.openConnection("https://www.google.com", UserAgent.CHROME);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public static boolean isFailedToCreateFile(File file) throws IOException {

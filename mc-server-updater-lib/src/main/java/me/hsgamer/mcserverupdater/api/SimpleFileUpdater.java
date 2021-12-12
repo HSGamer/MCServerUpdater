@@ -1,6 +1,6 @@
 package me.hsgamer.mcserverupdater.api;
 
-import me.hsgamer.mcserverupdater.Utils;
+import me.hsgamer.mcserverupdater.util.Utils;
 
 import java.io.File;
 import java.io.IOException;

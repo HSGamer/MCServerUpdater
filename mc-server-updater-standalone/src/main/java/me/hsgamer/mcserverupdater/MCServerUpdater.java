@@ -3,41 +3,16 @@ package me.hsgamer.mcserverupdater;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import me.hsgamer.hscore.collections.map.CaseInsensitiveStringHashMap;
-import me.hsgamer.mcserverupdater.api.Checksum;
-import me.hsgamer.mcserverupdater.api.LatestBuild;
-import me.hsgamer.mcserverupdater.api.Updater;
-import me.hsgamer.mcserverupdater.updater.*;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.logging.*;
 
 public final class MCServerUpdater {
     public static final Logger LOGGER = Logger.getLogger("MCServerUpdater");
-    private static final Map<String, Supplier<Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
 
     static {
-        registerUpdater(() -> new PaperUpdater("paper"), "paper", "papermc", "paperspigot");
-        registerUpdater(() -> new PaperUpdater("travertine"), "travertine");
-        registerUpdater(() -> new PaperUpdater("waterfall"), "waterfall");
-        registerUpdater(() -> new PaperUpdater("velocity"), "velocity");
-        registerUpdater(PurpurUpdater::new, "purpur", "purpurmc");
-        registerUpdater(() -> {
-            MCServerUpdater.LOGGER.warning("Airplane will be deprecated soon, consider using another updater.");
-            return new AirplaneUpdater();
-        }, "airplane");
-        registerUpdater(BungeeCordUpdater::new, "bungeecord", "bungee");
-        registerUpdater(SpigotUpdater::new, "spigot", "spigotmc");
-        registerUpdater(PatinaUpdater::new, "patina", "patinamc");
-        registerUpdater(NachoSpigotUpdater::new, "nacho", "nachospigot");
-        registerUpdater(BurritoSpigotUpdater::new, "burrito", "burritospigot");
-
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.INFO);
         handler.setFormatter(new Formatter() {
@@ -50,21 +25,14 @@ public final class MCServerUpdater {
         LOGGER.setUseParentHandlers(false);
     }
 
-    private static void registerUpdater(Supplier<Updater> updater, String... names) {
-        for (String name : names) {
-            UPDATERS.put(name, updater);
-        }
-    }
-
     public static void main(String[] args) throws Exception {
         OptionParser parser = new OptionParser();
         OptionSpec<Void> help = parser.accepts("help", "Get the list of arguments").forHelp();
         OptionSpec<Void> projects = parser.accepts("projects", "Get the list of projects").forHelp();
-        OptionSpec<String> project = parser.accepts("project", "The project to download").withRequiredArg().ofType(String.class).defaultsTo("paper");
-        OptionSpec<String> version = parser.accepts("version", "The project version").withRequiredArg().ofType(String.class).defaultsTo("default");
-        OptionSpec<String> build = parser.accepts("build", "The build of the project to download").withRequiredArg().ofType(String.class).defaultsTo("latest");
-        OptionSpec<String> output = parser.accepts("output", "The output file path").withRequiredArg().ofType(String.class).defaultsTo("server.jar");
-        OptionSpec<Boolean> skipInternetCheck = parser.accepts("skip-internet-check", "Skip the internet check").withOptionalArg().ofType(Boolean.class).defaultsTo(false);
+        OptionSpec<String> project = parser.accepts("project", "The project to download").withOptionalArg().ofType(String.class).defaultsTo("paper");
+        OptionSpec<String> version = parser.accepts("version", "The project version").withOptionalArg().ofType(String.class).defaultsTo("default");
+        OptionSpec<String> build = parser.accepts("build", "The build of the project to download").withOptionalArg().ofType(String.class).defaultsTo("latest");
+        OptionSpec<String> output = parser.accepts("output", "The output file path").withOptionalArg().ofType(String.class).defaultsTo("server.jar");
         OptionSet options = parser.parse(args);
         if (options.has(help)) {
             StringWriter writer = new StringWriter();
@@ -77,7 +45,7 @@ public final class MCServerUpdater {
             return;
         }
         if (options.has(projects)) {
-            for (String key : UPDATERS.keySet()) {
+            for (String key : UpdateBuilder.getUpdaterNames()) {
                 LOGGER.info(key);
             }
             System.exit(0);
@@ -88,63 +56,45 @@ public final class MCServerUpdater {
         String buildName = options.valueOf(build);
         String outputName = options.valueOf(output);
 
-        if (!options.valueOf(skipInternetCheck) && !Utils.checkInternetConnection()) {
-            LOGGER.severe("No internet connection");
-            System.exit(1);
-            return;
-        }
+        UpdateBuilder builder = UpdateBuilder.updateProject(projectName)
+                .version(versionName)
+                .build(buildName)
+                .outputFile(outputName);
 
-        Optional<Updater> optionalUpdater = Optional.ofNullable(UPDATERS.get(projectName)).map(Supplier::get);
-        if (optionalUpdater.isEmpty()) {
-            LOGGER.severe("Project not found");
-            System.exit(1);
-            return;
-        }
-        Updater updater = optionalUpdater.get();
-
-        if (versionName.equalsIgnoreCase("default")) {
-            versionName = updater.getDefaultVersion();
-            if (versionName == null) {
-                LOGGER.severe("No default version");
-                System.exit(1);
-                return;
-            }
-        }
-
-        if (buildName.equalsIgnoreCase("latest") && updater instanceof LatestBuild) {
-            buildName = ((LatestBuild) updater).getLatestBuild(versionName);
-            if (buildName == null) {
-                LOGGER.severe("No build found");
-                System.exit(1);
-                return;
-            }
-        }
-
-        File outputFile = new File(outputName);
-        if (outputFile.exists()) {
-            if (updater instanceof Checksum) {
-                LOGGER.info("Checking checksum...");
-                Checksum checksum = (Checksum) updater;
-                if (checksum.checksum(outputFile, versionName, buildName)) {
+        try {
+            LOGGER.info("Start updating...");
+            switch (builder.execute()) {
+                case SUCCESS:
+                    LOGGER.info("Download success");
+                    System.exit(0);
+                    break;
+                case FAILED:
+                    LOGGER.severe("Download failed");
+                    System.exit(1);
+                    break;
+                case FILE_FAILED:
+                    LOGGER.severe("Failed to create output file");
+                    System.exit(1);
+                    break;
+                case UP_TO_DATE:
                     LOGGER.info("Checksum match. File already up to date.");
                     System.exit(0);
-                    return;
-                }
+                    break;
+                case NO_BUILD:
+                    LOGGER.severe("No build found");
+                    System.exit(1);
+                    break;
+                case NO_VERSION:
+                    LOGGER.severe("No version found");
+                    System.exit(1);
+                    break;
+                case NO_PROJECT:
+                    LOGGER.severe("No project found");
+                    System.exit(1);
+                    break;
             }
-        } else {
-            if (Utils.isFailedToCreateFile(outputFile)) {
-                LOGGER.severe("Failed to create output file");
-                System.exit(1);
-                return;
-            }
-        }
-
-        LOGGER.info("Downloading " + projectName + " " + versionName + " " + buildName + "...");
-        if (updater.update(outputFile, versionName, buildName)) {
-            LOGGER.info("Downloaded to " + outputFile.getAbsolutePath());
-            System.exit(0);
-        } else {
-            LOGGER.severe("Failed to download");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "An error occurred", e);
             System.exit(1);
         }
     }
