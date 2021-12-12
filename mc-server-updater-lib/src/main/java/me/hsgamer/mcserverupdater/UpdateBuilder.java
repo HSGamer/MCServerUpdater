@@ -13,6 +13,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+/**
+ * Where to create the update process
+ */
 public final class UpdateBuilder {
     private static final Map<String, Supplier<Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
 
@@ -39,39 +42,86 @@ public final class UpdateBuilder {
         this.updater = Optional.ofNullable(UPDATERS.get(project)).map(Supplier::get).orElse(null);
     }
 
+    /**
+     * Register a updater
+     *
+     * @param updater the updater
+     * @param names   the names
+     */
     public static void registerUpdater(Supplier<Updater> updater, String... names) {
         for (String name : names) {
             UPDATERS.put(name, updater);
         }
     }
 
+    /**
+     * Get the names of available updaters
+     *
+     * @return the names
+     */
     public static Set<String> getUpdaterNames() {
         return UPDATERS.keySet();
     }
 
+    /**
+     * Create the update process
+     *
+     * @param project the project
+     * @return the update process
+     */
     public static UpdateBuilder updateProject(String project) {
         return new UpdateBuilder(project);
     }
 
+    /**
+     * Set the version
+     *
+     * @param version the version
+     * @return the update process
+     */
     public UpdateBuilder version(String version) {
         this.version = version;
         return this;
     }
 
+    /**
+     * Set the build
+     *
+     * @param build the build
+     * @return the update process
+     */
     public UpdateBuilder build(String build) {
         this.build = build;
         return this;
     }
 
+    /**
+     * Set the output file
+     *
+     * @param outputFile the output file
+     * @return the update process
+     */
     public UpdateBuilder outputFile(File outputFile) {
         this.outputFile = outputFile;
         return this;
     }
 
+    /**
+     * Set the output file
+     *
+     * @param outputFile the output file
+     * @return the update process
+     */
     public UpdateBuilder outputFile(String outputFile) {
         return outputFile(new File(outputFile));
     }
 
+    /**
+     * Execute the update process
+     *
+     * @return the status of the process
+     * @throws Exception if an error occurs
+     */
     public UpdateStatus execute() throws Exception {
         if (updater == null) {
             return UpdateStatus.NO_PROJECT;
