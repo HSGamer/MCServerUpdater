@@ -17,7 +17,6 @@ Option                           Description
 --output <String>                The output file path (default: server.jar)
 --project <String>               The project to download (default: paper)
 --projects                       Get the list of projects
---skip-internet-check [Boolean]  Skip the internet check (default: false)
 --version <String>               The project version (default: default)
 ```
 
