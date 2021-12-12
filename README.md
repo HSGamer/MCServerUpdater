@@ -35,3 +35,58 @@ Option                           Description
     * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1 --build latest`
 * Download the #106 build of Airplane 1.17.1
     * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1 --build 106`
+
+## Use this in your projects
+
+1. Add this as a dependency
+
+* Maven
+
+```xml
+
+<repositories>
+    <repository>
+        <id>codemc-repo</id>
+        <url>https://repo.codemc.io/repository/maven-public/</url>
+    </repository>
+</repositories>
+```
+
+```xml
+
+<dependencies>
+    <dependency>
+        <groupId>me.hsgamer</groupId>
+        <artifactId>mc-server-updater-lib</artifactId>
+        <version>VERSION</version>
+    </dependency>
+</dependencies>
+```
+
+* Gradle
+
+```groovy
+repositories {
+    maven { url = "https://repo.codemc.io/repository/maven-public/" }
+}
+
+dependencies {
+    compileOnly(group: 'me.hsgamer', name: 'mc-server-updater-lib', version: 'VERSION')
+}
+```
+
+2. Use the `UpdateBuilder` to create, execute the update process and get the result as `UpdateStatus`
+
+```java
+class Main {
+    public static void main(String[] args) {
+        UpdateStatus status = UpdateBuilder.updateProject("paper")
+                .version("1.17.1")
+                .build("latest")
+                .outputFile("server.jar")
+                .execute();
+    }
+}
+```
+
+3. Do whatever you want with the `UpdateStatus`
