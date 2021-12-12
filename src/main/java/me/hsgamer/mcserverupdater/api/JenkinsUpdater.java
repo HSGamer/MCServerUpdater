@@ -1,10 +1,8 @@
-package me.hsgamer.mcserverupdater.updater;
+package me.hsgamer.mcserverupdater.api;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.Utils;
-import me.hsgamer.mcserverupdater.api.LatestBuild;
-import me.hsgamer.mcserverupdater.api.SimpleFileUpdater;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 

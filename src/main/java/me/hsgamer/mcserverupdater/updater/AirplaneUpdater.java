@@ -1,5 +1,7 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
+
 public class AirplaneUpdater extends JenkinsUpdater {
     public AirplaneUpdater() {
         super("https://ci.tivy.ca/");

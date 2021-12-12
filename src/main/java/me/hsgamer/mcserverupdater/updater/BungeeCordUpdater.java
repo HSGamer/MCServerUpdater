@@ -1,5 +1,7 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
+
 public class BungeeCordUpdater extends JenkinsUpdater {
     public BungeeCordUpdater() {
         super("https://ci.md-5.net/");

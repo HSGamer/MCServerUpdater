@@ -1,5 +1,7 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.api.GithubBranchUpdater;
+
 public class PatinaUpdater extends GithubBranchUpdater {
     public PatinaUpdater() {
         super("PatinaMC/Patina");
