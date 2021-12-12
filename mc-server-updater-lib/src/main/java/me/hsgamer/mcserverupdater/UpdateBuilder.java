@@ -57,12 +57,20 @@ public final class UpdateBuilder {
     }
 
     public UpdateBuilder version(String version) {
-        this.version = version;
+        if (updater != null && version.equalsIgnoreCase("default")) {
+            this.version = updater.getDefaultVersion();
+        } else {
+            this.version = version;
+        }
         return this;
     }
 
     public UpdateBuilder build(String build) {
-        this.build = build;
+        if (updater != null && version != null && build.equalsIgnoreCase("latest") && updater instanceof LatestBuild) {
+            this.build = ((LatestBuild) updater).getLatestBuild(version);
+        } else {
+            this.build = build;
+        }
         return this;
     }
 
@@ -80,19 +88,11 @@ public final class UpdateBuilder {
         if (updater == null) {
             return UpdateStatus.NO_PROJECT;
         }
-
-        if (version.equalsIgnoreCase("default")) {
-            version = updater.getDefaultVersion();
-            if (version == null) {
-                return UpdateStatus.NO_VERSION;
-            }
+        if (version == null) {
+            return UpdateStatus.NO_VERSION;
         }
-
-        if (build.equalsIgnoreCase("latest") && updater instanceof LatestBuild) {
-            build = ((LatestBuild) updater).getLatestBuild(version);
-            if (build == null) {
-                return UpdateStatus.NO_BUILD;
-            }
+        if (build == null) {
+            return UpdateStatus.NO_BUILD;
         }
 
         if (outputFile.exists()) {
