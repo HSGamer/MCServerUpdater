@@ -9,6 +9,7 @@ import me.hsgamer.mcserverupdater.util.Utils;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -35,11 +36,7 @@ public final class UpdateBuilder {
     private File outputFile = new File("server.jar");
 
     private UpdateBuilder(String project) {
-        if (UPDATERS.containsKey(project)) {
-            this.updater = UPDATERS.get(project).get();
-        } else {
-            this.updater = null;
-        }
+        this.updater = Optional.ofNullable(UPDATERS.get(project)).map(Supplier::get).orElse(null);
     }
 
     public static void registerUpdater(Supplier<Updater> updater, String... names) {
