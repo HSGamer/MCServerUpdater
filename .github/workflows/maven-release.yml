@@ -21,11 +21,12 @@ jobs:
         uses: actions/upload-artifact@v1.0.0
         with:
           name: "MCServerUpdater"
-          path: "./target/MCServerUpdater.jar"
+          path: "./mc-server-updater-standalone/target/MCServerUpdater.jar"
       - name: "Release"
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ./target/MCServerUpdater.jar
+            ./mc-server-updater-standalone/target/MCServerUpdater.jar
+            ./mc-server-updater-lib/target/mc-server-updater-lib-*.jar

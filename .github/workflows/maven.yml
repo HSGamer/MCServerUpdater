@@ -21,4 +21,4 @@ jobs:
         uses: actions/upload-artifact@v1.0.0
         with:
           name: "MCServerUpdater"
-          path: "./target/MCServerUpdater.jar"
+          path: "./mc-server-updater-standalone/target/MCServerUpdater.jar"
