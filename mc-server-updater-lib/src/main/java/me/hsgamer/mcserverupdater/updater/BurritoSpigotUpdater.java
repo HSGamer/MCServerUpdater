@@ -1,8 +1,8 @@
 package me.hsgamer.mcserverupdater.updater;
 
-import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
+import me.hsgamer.mcserverupdater.api.GithubBranchUpdater;
 
-public class BurritoSpigotUpdater extends GithubReleaseUpdater {
+public class BurritoSpigotUpdater extends GithubBranchUpdater {
     public BurritoSpigotUpdater() {
         super("CobbleSword/BurritoSpigot");
     }
@@ -13,7 +13,12 @@ public class BurritoSpigotUpdater extends GithubReleaseUpdater {
     }
 
     @Override
-    public String getArtifact(String version, String build) {
-        return "BurritoSpigot.jar";
+    public String getBranch(String version) {
+        return "downloads";
+    }
+
+    @Override
+    public String getFile(String version, String build) {
+        return "jars/BurritoSpigot.jar";
     }
 }
