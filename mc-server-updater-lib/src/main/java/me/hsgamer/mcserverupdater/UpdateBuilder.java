@@ -127,14 +127,14 @@ public final class UpdateBuilder {
             return UpdateStatus.NO_PROJECT;
         }
 
-        if (version.equalsIgnoreCase("default")) {
+        if ("default".equalsIgnoreCase(version)) {
             version = updater.getDefaultVersion();
         }
         if (version == null) {
             return UpdateStatus.NO_VERSION;
         }
 
-        if (build.equalsIgnoreCase("latest") && updater instanceof LatestBuild) {
+        if ("latest".equalsIgnoreCase(build) && updater instanceof LatestBuild) {
             build = ((LatestBuild) updater).getLatestBuild(version);
         }
         if (build == null) {
