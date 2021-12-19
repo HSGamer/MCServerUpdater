@@ -61,4 +61,9 @@ public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestB
     public File getChecksumFile() throws IOException {
         return Utils.getFile("github.release");
     }
+
+    @Override
+    public String getDefaultVersion() {
+        return "Default";
+    }
 }

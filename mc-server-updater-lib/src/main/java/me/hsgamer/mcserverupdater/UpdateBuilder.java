@@ -32,6 +32,7 @@ public final class UpdateBuilder {
         registerUpdater(NachoSpigotUpdater::new, "nacho", "nachospigot");
         registerUpdater(BurritoSpigotUpdater::new, "burrito", "burritospigot");
         registerUpdater(PufferfishUpdater::new, "pufferfish");
+        registerUpdater(FlameCordUpdater::new, "flamecord");
     }
 
     private final Updater updater;
