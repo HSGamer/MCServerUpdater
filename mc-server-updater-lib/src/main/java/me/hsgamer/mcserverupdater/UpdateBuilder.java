@@ -31,6 +31,7 @@ public final class UpdateBuilder {
         registerUpdater(PatinaUpdater::new, "patina", "patinamc");
         registerUpdater(NachoSpigotUpdater::new, "nacho", "nachospigot");
         registerUpdater(BurritoSpigotUpdater::new, "burrito", "burritospigot");
+        registerUpdater(PufferfishUpdater::new, "pufferfish");
     }
 
     private final Updater updater;
