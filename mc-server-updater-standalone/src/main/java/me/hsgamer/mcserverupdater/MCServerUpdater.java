@@ -63,35 +63,13 @@ public final class MCServerUpdater {
 
         try {
             LOGGER.info("Start updating...");
-            switch (builder.execute()) {
-                case SUCCESS:
-                    LOGGER.info("Download success");
-                    System.exit(0);
-                    break;
-                case FAILED:
-                    LOGGER.severe("Download failed");
-                    System.exit(1);
-                    break;
-                case FILE_FAILED:
-                    LOGGER.severe("Failed to create output file");
-                    System.exit(1);
-                    break;
-                case UP_TO_DATE:
-                    LOGGER.info("Checksum match. File already up to date.");
-                    System.exit(0);
-                    break;
-                case NO_BUILD:
-                    LOGGER.severe("No build found");
-                    System.exit(1);
-                    break;
-                case NO_VERSION:
-                    LOGGER.severe("No version found");
-                    System.exit(1);
-                    break;
-                case NO_PROJECT:
-                    LOGGER.severe("No project found");
-                    System.exit(1);
-                    break;
+            UpdateStatus status = builder.execute();
+            if (status.isSuccessStatus()) {
+                LOGGER.info(status.getCause().getMessage());
+                System.exit(0);
+            } else {
+                LOGGER.log(Level.SEVERE, "Failed to update", status.getCause());
+                System.exit(1);
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "An error occurred", e);

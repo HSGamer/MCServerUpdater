@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
@@ -121,41 +122,56 @@ public final class UpdateBuilder {
     /**
      * Execute the update process
      *
+     * @return the update status
+     */
+    public CompletableFuture<UpdateStatus> executeAsync() {
+        return CompletableFuture.completedFuture(updater).thenApply(update -> {
+            if (update == null) {
+                return UpdateStatus.NO_PROJECT;
+            }
+            if ("default".equalsIgnoreCase(version)) {
+                version = update.getDefaultVersion();
+            }
+            if (version == null) {
+                return UpdateStatus.NO_VERSION;
+            }
+
+            if ("latest".equalsIgnoreCase(build) && update instanceof LatestBuild) {
+                build = ((LatestBuild) update).getLatestBuild(version);
+            }
+            if (build == null) {
+                return UpdateStatus.NO_BUILD;
+            }
+
+            try {
+                if (outputFile.exists()) {
+                    if (update instanceof Checksum) {
+                        Checksum checksum = (Checksum) update;
+                        if (checksum.checksum(outputFile, version, build)) {
+                            return UpdateStatus.UP_TO_DATE;
+                        }
+                    }
+                } else if (Utils.isFailedToCreateFile(outputFile)) {
+                    return UpdateStatus.FILE_FAILED;
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            try {
+                return update.update(outputFile, version, build) ? UpdateStatus.SUCCESS : UpdateStatus.FAILED;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).exceptionally(UpdateStatus::unknownError);
+    }
+
+    /**
+     * Execute the update process
+     *
      * @return the status of the process
-     * @throws Exception if an error occurs
      */
     public UpdateStatus execute() throws Exception {
-        if (updater == null) {
-            return UpdateStatus.NO_PROJECT;
-        }
-
-        if ("default".equalsIgnoreCase(version)) {
-            version = updater.getDefaultVersion();
-        }
-        if (version == null) {
-            return UpdateStatus.NO_VERSION;
-        }
-
-        if ("latest".equalsIgnoreCase(build) && updater instanceof LatestBuild) {
-            build = ((LatestBuild) updater).getLatestBuild(version);
-        }
-        if (build == null) {
-            return UpdateStatus.NO_BUILD;
-        }
-
-        if (outputFile.exists()) {
-            if (updater instanceof Checksum) {
-                Checksum checksum = (Checksum) updater;
-                if (checksum.checksum(outputFile, version, build)) {
-                    return UpdateStatus.UP_TO_DATE;
-                }
-            }
-        } else if (Utils.isFailedToCreateFile(outputFile)) {
-            return UpdateStatus.FILE_FAILED;
-        }
-
-        return updater.update(outputFile, version, build)
-                ? UpdateStatus.SUCCESS
-                : UpdateStatus.FAILED;
+        return executeAsync().get();
     }
 }
