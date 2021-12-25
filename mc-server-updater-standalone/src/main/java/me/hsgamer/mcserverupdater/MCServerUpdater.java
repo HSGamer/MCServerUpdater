@@ -5,6 +5,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.logging.*;
@@ -18,7 +19,14 @@ public final class MCServerUpdater {
         handler.setFormatter(new Formatter() {
             @Override
             public String format(LogRecord logRecord) {
-                return "[" + logRecord.getLevel() + "] " + logRecord.getMessage() + "\n";
+                StringBuilder builder = new StringBuilder();
+                builder.append("[").append(logRecord.getLevel()).append("] ").append(logRecord.getMessage()).append("\n");
+                if (logRecord.getThrown() != null) {
+                    StringWriter writer = new StringWriter();
+                    logRecord.getThrown().printStackTrace(new PrintWriter(writer));
+                    builder.append(writer);
+                }
+                return builder.toString();
             }
         });
         LOGGER.addHandler(handler);
