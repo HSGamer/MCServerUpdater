@@ -32,6 +32,8 @@ public final class UpdateStatus {
      * Failed to update
      */
     public static final UpdateStatus FAILED = new UpdateStatus(false, "Failed");
+
+
     private final boolean isSuccessStatus;
     private final Throwable throwable;
 
