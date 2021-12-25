@@ -78,14 +78,21 @@ dependencies {
 2. Use the `UpdateBuilder` to create, execute the update process and get the result as `UpdateStatus`
 
 ```java
+import java.util.concurrent.CompletableFuture;
+
 class Main {
-    public static void main(String[] args) {
-        UpdateStatus status = UpdateBuilder.updateProject("paper")
-                .version("1.17.1")
-                .build("latest")
-                .outputFile("server.jar")
-                .execute();
-    }
+  public static void main(String[] args) {
+    UpdateBuilder builder = UpdateBuilder.updateProject("paper")
+            .version("1.17.1")
+            .build("latest")
+            .outputFile("server.jar");
+
+    // Execute the update process asynchronously
+    CompletableFuture<UpdateStatus> future = builder.executeAsync();
+    
+    // Execute the update process synchronously
+    UpdateStatus status = builder.execute();
+  }
 }
 ```
 
