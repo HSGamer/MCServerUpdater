@@ -65,10 +65,10 @@ public final class MCServerUpdater {
             LOGGER.info("Start updating...");
             UpdateStatus status = builder.execute();
             if (status.isSuccessStatus()) {
-                LOGGER.info(status.getCause().getMessage());
+                LOGGER.info(status.getMessage());
                 System.exit(0);
             } else {
-                LOGGER.log(Level.SEVERE, "Failed to update", status.getCause());
+                LOGGER.log(Level.SEVERE, "Failed to update", status.getThrowable());
                 System.exit(1);
             }
         } catch (Exception e) {

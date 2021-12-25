@@ -33,11 +33,11 @@ public final class UpdateStatus {
      */
     public static final UpdateStatus FAILED = new UpdateStatus(false, "Failed");
     private final boolean isSuccessStatus;
-    private final Throwable cause;
+    private final Throwable throwable;
 
-    private UpdateStatus(boolean isSuccessStatus, Throwable cause) {
+    private UpdateStatus(boolean isSuccessStatus, Throwable throwable) {
         this.isSuccessStatus = isSuccessStatus;
-        this.cause = cause;
+        this.throwable = throwable;
     }
 
     private UpdateStatus(boolean isSuccessStatus, String message) {
@@ -64,11 +64,21 @@ public final class UpdateStatus {
     }
 
     /**
-     * Get the cause of the error
+     * Get the throwable
      *
-     * @return the cause of the error, or null if there is no error
+     * @return the throwable, or null if there is no error
      */
-    public Throwable getCause() {
-        return cause;
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    /**
+     * Get the message
+     *
+     * @return the message, or null if there is no error
+     */
+    public String getMessage() {
+        if (throwable == null) return null;
+        return throwable.getMessage();
     }
 }
