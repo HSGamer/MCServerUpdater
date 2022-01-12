@@ -1,26 +1,27 @@
 package me.hsgamer.mcserverupdater.updater;
 
-import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
+import me.hsgamer.hscore.web.UserAgent;
+import me.hsgamer.hscore.web.WebUtils;
+import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 
-public class AirplaneUpdater extends JenkinsUpdater {
-    public AirplaneUpdater() {
-        super("https://ci.tivy.ca/");
-    }
+import java.io.InputStream;
+import java.net.URLConnection;
+import java.util.Locale;
+
+public class AirplaneUpdater implements InputStreamUpdater {
 
     @Override
-    public String getJob(String version) {
-        if (version.contains("1.17")) {
-            return "Airplane-1.17";
-        } else if (version.contains("1.16")) {
-            return "Airplane-1.16";
-        } else {
-            return "Airplane-" + version;
+    public InputStream getInputStream(String version, String build) {
+        String url = build.toLowerCase(Locale.ROOT).contains("purpur")
+                ? "https://airplane.gg/dl/launcher-airplanepurpur1.17.1.jar"
+                : "https://airplane.gg/dl/launcher-airplane1.17.1.jar";
+        try {
+            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+            return connection.getInputStream();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-    }
-
-    @Override
-    public String getArtifactName(String version, String build) {
-        return "launcher-airplane.jar";
     }
 
     @Override
