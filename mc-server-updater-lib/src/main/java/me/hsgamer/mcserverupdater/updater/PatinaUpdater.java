@@ -14,7 +14,9 @@ public class PatinaUpdater extends GithubBranchUpdater {
 
     @Override
     public String getFile(String version, String build) {
-        if (version.equalsIgnoreCase("1.16.5")) {
+        if (version.equalsIgnoreCase("1.18.1")) {
+            return "patina-bundler-1.18.1-R0.1-SNAPSHOT-reobf.jar";
+        } else if (version.equalsIgnoreCase("1.16.5")) {
             return "1.16.5-paperclip.jar";
         } else {
             return "Patina-" + version + "-R0.1-SNAPSHOT.jar";
