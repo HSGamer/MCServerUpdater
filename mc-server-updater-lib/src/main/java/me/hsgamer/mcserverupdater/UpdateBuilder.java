@@ -34,6 +34,7 @@ public final class UpdateBuilder {
         registerUpdater(BurritoSpigotUpdater::new, "burrito", "burritospigot");
         registerUpdater(PufferfishUpdater::new, "pufferfish");
         registerUpdater(FlameCordUpdater::new, "flamecord");
+        registerUpdater(FlamePaperUpdater::new, "flamepaper");
     }
 
     private final Updater updater;
