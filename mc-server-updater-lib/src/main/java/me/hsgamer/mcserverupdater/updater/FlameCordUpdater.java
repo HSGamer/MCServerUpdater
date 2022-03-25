@@ -1,14 +1,24 @@
 package me.hsgamer.mcserverupdater.updater;
 
-import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
+import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
 
-public class FlameCordUpdater extends GithubReleaseUpdater {
+public class FlameCordUpdater extends JenkinsUpdater {
     public FlameCordUpdater() {
-        super("2lstudios-mc/FlameCord");
+        super("https://ci.2lstudios.dev/");
     }
 
     @Override
-    public String getArtifact(String version, String build) {
+    public String getJob(String version) {
+        return "FlameCord";
+    }
+
+    @Override
+    public String getArtifactName(String version, String build) {
         return "FlameCord.jar";
+    }
+
+    @Override
+    public String getDefaultVersion() {
+        return "1.8.8";
     }
 }
