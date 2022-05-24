@@ -21,7 +21,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
     private final String downloadUrl;
 
     public PaperUpdater(String project) {
-        projectUrl = String.format("https://papermc.io/api/v2/projects/%s/", project);
+        projectUrl = String.format("https://api.papermc.io/v2/projects/%s/", project);
         versionUrl = projectUrl + "versions/%s/";
         buildUrl = versionUrl + "builds/%s/";
         downloadUrl = buildUrl + "downloads/%s";
