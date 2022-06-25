@@ -2,6 +2,8 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
 
+import java.util.regex.Pattern;
+
 public class BungeeCordUpdater extends JenkinsUpdater {
     public BungeeCordUpdater() {
         super("https://ci.md-5.net/");
@@ -13,8 +15,8 @@ public class BungeeCordUpdater extends JenkinsUpdater {
     }
 
     @Override
-    public String getArtifactName(String version, String build) {
-        return "bootstrap/target/BungeeCord.jar";
+    public Pattern getArtifactRegex(String version, String build) {
+        return Pattern.compile(Pattern.quote("BungeeCord.jar"));
     }
 
     @Override

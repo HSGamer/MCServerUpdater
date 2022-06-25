@@ -2,6 +2,8 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
 
+import java.util.regex.Pattern;
+
 public class FlamePaperUpdater extends JenkinsUpdater {
     public FlamePaperUpdater() {
         super("https://ci.2lstudios.dev/");
@@ -13,8 +15,8 @@ public class FlamePaperUpdater extends JenkinsUpdater {
     }
 
     @Override
-    public String getArtifactName(String version, String build) {
-        return "FlamePaper.jar";
+    public Pattern getArtifactRegex(String version, String build) {
+        return Pattern.compile(Pattern.quote("FlamePaper.jar"));
     }
 
     @Override

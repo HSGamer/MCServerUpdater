@@ -3,6 +3,7 @@ package me.hsgamer.mcserverupdater.api;
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.util.Utils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.regex.Pattern;
 
 public abstract class JenkinsUpdater implements SimpleFileUpdater, LatestBuild {
     private final String jenkinsUrl;
@@ -24,7 +26,7 @@ public abstract class JenkinsUpdater implements SimpleFileUpdater, LatestBuild {
 
     public abstract String getJob(String version);
 
-    public abstract String getArtifactName(String version, String build);
+    public abstract Pattern getArtifactRegex(String version, String build);
 
     @Override
     public String getChecksum(String version, String build) {
@@ -75,8 +77,25 @@ public abstract class JenkinsUpdater implements SimpleFileUpdater, LatestBuild {
     }
 
     public String getArtifactUrl(String version, String build) {
-        String artifact = getArtifactName(version, build);
-        String job = getJob(version);
-        return String.format(artifactUrl, job, build, artifact);
+        Pattern artifactRegex = getArtifactRegex(version, build);
+        String artifactListUrl = getJobUrl(version) + build + "/api/json?tree=artifacts[fileName,relativePath]";
+        String artifact = "INVALID";
+        try {
+            URLConnection connection = WebUtils.openConnection(artifactListUrl, UserAgent.CHROME);
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            JSONArray artifacts = jsonObject.getJSONArray("artifacts");
+            for (int i = 0; i < artifacts.length(); i++) {
+                JSONObject artifactObject = artifacts.getJSONObject(i);
+                String fileName = artifactObject.getString("fileName");
+                if (artifactRegex.matcher(fileName).matches()) {
+                    artifact = artifactObject.getString("relativePath");
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return String.format(artifactUrl, getJob(version), build, artifact);
     }
 }
