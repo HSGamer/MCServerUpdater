@@ -11,16 +11,19 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestBuild, UrlInputStreamUpdater {
     private final String repo;
+    private final boolean versionAsTag;
     private final String releasesUrl;
     private final String releaseByTagUrl;
     private final String releaseAssetUrl;
 
-    protected GithubReleaseUpdater(String repo) {
+    protected GithubReleaseUpdater(String repo, boolean versionAsTag) {
         this.repo = repo;
+        this.versionAsTag = versionAsTag;
         String url = "https://api.github.com/repos/" + repo + "/";
         this.releasesUrl = url + "releases";
         this.releaseByTagUrl = url + "releases/tags/%s";
@@ -31,19 +34,7 @@ public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestB
 
     @Override
     public String getFileUrl(String version, String build) {
-        String tagToIdUrl = String.format(releaseByTagUrl, build);
-        String id;
-        try {
-            URLConnection connection = WebUtils.openConnection(tagToIdUrl, UserAgent.CHROME);
-            InputStream inputStream = connection.getInputStream();
-            JSONObject object = new JSONObject(new JSONTokener(inputStream));
-            id = object.getString("id");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        String assetUrl = String.format(releaseAssetUrl, id);
+        String assetUrl = String.format(releaseAssetUrl, build);
         try {
             URLConnection connection = WebUtils.openConnection(assetUrl, UserAgent.CHROME);
             InputStream inputStream = connection.getInputStream();
@@ -64,17 +55,31 @@ public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestB
 
     @Override
     public String getLatestBuild(String version) {
-        String url = releasesUrl + "?per_page=1";
-        try {
-            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
-            InputStream inputStream = connection.getInputStream();
-            JSONArray array = new JSONArray(new JSONTokener(inputStream));
-            JSONObject object = array.getJSONObject(0);
-            return object.getString("tag_name");
-        } catch (IOException e) {
-            e.printStackTrace();
+        JSONObject object = null;
+        if (versionAsTag) {
+            String tagToIdUrl = String.format(releaseByTagUrl, version);
+            try {
+                URLConnection connection = WebUtils.openConnection(tagToIdUrl, UserAgent.CHROME);
+                InputStream inputStream = connection.getInputStream();
+                object = new JSONObject(new JSONTokener(inputStream));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            String url = releasesUrl + "?per_page=1";
+            try {
+                URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+                InputStream inputStream = connection.getInputStream();
+                JSONArray array = new JSONArray(new JSONTokener(inputStream));
+                object = array.getJSONObject(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (object == null) {
             return null;
         }
+        return Objects.toString(object.get("id"), null);
     }
 
     @Override
@@ -85,10 +90,5 @@ public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestB
     @Override
     public File getChecksumFile() throws IOException {
         return Utils.getFile("github.release");
-    }
-
-    @Override
-    public String getDefaultVersion() {
-        return "Default";
     }
 }

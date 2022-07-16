@@ -30,6 +30,9 @@ public final class UpdateBuilder {
         registerUpdater(SpigotUpdater::new, "spigot", "spigotmc");
         registerUpdater(PatinaUpdater::new, "patina", "patinamc");
         registerUpdater(PufferfishUpdater::new, "pufferfish");
+        registerUpdater(PearlUpdater::new, "pearl");
+        registerUpdater(WindSpigotUpdater::new, "windspigot", "wind");
+        registerUpdater(MiraiUpdater::new, "mirai");
     }
 
     private final Updater updater;
