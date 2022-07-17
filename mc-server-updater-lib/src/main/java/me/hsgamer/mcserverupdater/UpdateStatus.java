@@ -25,6 +25,10 @@ public final class UpdateStatus {
      */
     public static final UpdateStatus UP_TO_DATE = new UpdateStatus(true, "Up-to-date version");
     /**
+     * The output file is out-of-date
+     */
+    public static final UpdateStatus OUT_OF_DATE = new UpdateStatus(true, "Out-of-date version");
+    /**
      * Update successfully
      */
     public static final UpdateStatus SUCCESS = new UpdateStatus(true, "Successfully updated");

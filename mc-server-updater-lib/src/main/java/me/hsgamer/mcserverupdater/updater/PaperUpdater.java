@@ -29,7 +29,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
 
     private JSONObject getDownload(String version, String build) throws IOException {
         String formattedUrl = String.format(buildUrl, version, build);
-        URLConnection connection = WebUtils.openConnection(formattedUrl, UserAgent.CHROME);
+        URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
         InputStream inputStream = connection.getInputStream();
         JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
         JSONObject downloads = jsonObject.getJSONObject("downloads");
@@ -64,7 +64,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
         }
         String formattedUrl = String.format(downloadUrl, version, build, fileName);
         try {
-            URLConnection connection = WebUtils.openConnection(formattedUrl, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
             return connection.getInputStream();
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,7 +76,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
     public String getLatestBuild(String version) {
         String formattedUrl = String.format(versionUrl, version);
         try {
-            URLConnection connection = WebUtils.openConnection(formattedUrl, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("builds");
@@ -90,7 +90,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
     @Override
     public String getDefaultVersion() {
         try {
-            URLConnection connection = WebUtils.openConnection(projectUrl, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(projectUrl));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("versions");

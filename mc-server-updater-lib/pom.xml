@@ -20,19 +20,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>me.HSGamer</groupId>
-            <artifactId>HSCore-collections</artifactId>
-            <version>3.17</version>
+            <groupId>me.hsgamer</groupId>
+            <artifactId>hscore-collections</artifactId>
+            <version>4.1.1</version>
         </dependency>
         <dependency>
-            <groupId>me.HSGamer</groupId>
-            <artifactId>HSCore-web</artifactId>
-            <version>3.17</version>
+            <groupId>me.hsgamer</groupId>
+            <artifactId>hscore-web</artifactId>
+            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20210307</version>
+            <version>20220320</version>
         </dependency>
     </dependencies>
 </project>

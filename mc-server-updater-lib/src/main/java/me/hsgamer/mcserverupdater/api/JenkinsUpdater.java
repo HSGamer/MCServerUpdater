@@ -2,18 +2,16 @@ package me.hsgamer.mcserverupdater.api;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
-import me.hsgamer.mcserverupdater.util.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
 
-public abstract class JenkinsUpdater implements SimpleFileUpdater, LatestBuild {
+public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdater, LatestBuild {
     private final String jenkinsUrl;
     private final String jobUrl;
     private final String artifactUrl;
@@ -37,7 +35,7 @@ public abstract class JenkinsUpdater implements SimpleFileUpdater, LatestBuild {
     public InputStream getInputStream(String version, String build) {
         String url = getArtifactUrl(version, build);
         try {
-            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             return connection.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
@@ -46,17 +44,12 @@ public abstract class JenkinsUpdater implements SimpleFileUpdater, LatestBuild {
     }
 
     @Override
-    public File getChecksumFile() throws IOException {
-        return Utils.getFile("jenkins.build");
-    }
-
-    @Override
     public String getLatestBuild(String version) {
         String url = getJobUrl(version);
         String api = url + "api/json";
         String treeUrl = api + "?tree=lastSuccessfulBuild[number]";
         try {
-            URLConnection connection = WebUtils.openConnection(treeUrl, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(treeUrl));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject build = jsonObject.getJSONObject("lastSuccessfulBuild");
@@ -81,7 +74,7 @@ public abstract class JenkinsUpdater implements SimpleFileUpdater, LatestBuild {
         String artifactListUrl = getJobUrl(version) + build + "/api/json?tree=artifacts[fileName,relativePath]";
         String artifact = "INVALID";
         try {
-            URLConnection connection = WebUtils.openConnection(artifactListUrl, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactListUrl));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray artifacts = jsonObject.getJSONArray("artifacts");

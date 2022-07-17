@@ -2,19 +2,17 @@ package me.hsgamer.mcserverupdater.api;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
-import me.hsgamer.mcserverupdater.util.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestBuild, UrlInputStreamUpdater {
+public abstract class GithubReleaseUpdater implements SimpleChecksum, LatestBuild, UrlInputStreamUpdater {
     private final String repo;
     private final boolean versionAsTag;
     private final String releasesUrl;
@@ -36,7 +34,7 @@ public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestB
     public String getFileUrl(String version, String build) {
         String assetUrl = String.format(releaseAssetUrl, build);
         try {
-            URLConnection connection = WebUtils.openConnection(assetUrl, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(assetUrl));
             InputStream inputStream = connection.getInputStream();
             JSONArray array = new JSONArray(new JSONTokener(inputStream));
             for (int i = 0; i < array.length(); i++) {
@@ -59,7 +57,7 @@ public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestB
         if (versionAsTag) {
             String tagToIdUrl = String.format(releaseByTagUrl, version);
             try {
-                URLConnection connection = WebUtils.openConnection(tagToIdUrl, UserAgent.CHROME);
+                URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(tagToIdUrl));
                 InputStream inputStream = connection.getInputStream();
                 object = new JSONObject(new JSONTokener(inputStream));
             } catch (IOException e) {
@@ -68,7 +66,7 @@ public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestB
         } else {
             String url = releasesUrl + "?per_page=1";
             try {
-                URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+                URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
                 InputStream inputStream = connection.getInputStream();
                 JSONArray array = new JSONArray(new JSONTokener(inputStream));
                 object = array.getJSONObject(0);
@@ -85,10 +83,5 @@ public abstract class GithubReleaseUpdater implements SimpleFileUpdater, LatestB
     @Override
     public String getChecksum(String version, String build) {
         return repo + "||" + build;
-    }
-
-    @Override
-    public File getChecksumFile() throws IOException {
-        return Utils.getFile("github.release");
     }
 }

@@ -2,18 +2,16 @@ package me.hsgamer.mcserverupdater.api;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
-import me.hsgamer.mcserverupdater.util.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
 
-public abstract class GithubBranchUpdater implements SimpleFileUpdater, LatestBuild, UrlInputStreamUpdater {
+public abstract class GithubBranchUpdater implements SimpleChecksum, LatestBuild, UrlInputStreamUpdater {
     private final String refLatestCommitUrl;
     private final String downloadUrl;
     private final String filesUrl;
@@ -32,7 +30,7 @@ public abstract class GithubBranchUpdater implements SimpleFileUpdater, LatestBu
     public String getFile(String version, String build) {
         String url = String.format(filesUrl, build);
         try {
-            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
             JSONObject object = new JSONObject(new JSONTokener(inputStream));
             JSONArray array = object.getJSONArray("tree");
@@ -64,7 +62,7 @@ public abstract class GithubBranchUpdater implements SimpleFileUpdater, LatestBu
     public String getLatestBuild(String version) {
         String url = String.format(refLatestCommitUrl, getBranch(version));
         try {
-            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             return jsonObject.getString("sha");
@@ -77,10 +75,5 @@ public abstract class GithubBranchUpdater implements SimpleFileUpdater, LatestBu
     @Override
     public String getChecksum(String version, String build) {
         return build;
-    }
-
-    @Override
-    public File getChecksumFile() throws IOException {
-        return Utils.getFile("github.commit");
     }
 }

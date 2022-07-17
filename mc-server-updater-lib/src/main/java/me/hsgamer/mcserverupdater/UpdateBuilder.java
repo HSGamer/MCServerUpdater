@@ -5,6 +5,7 @@ import me.hsgamer.mcserverupdater.api.Checksum;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
 import me.hsgamer.mcserverupdater.api.Updater;
 import me.hsgamer.mcserverupdater.updater.*;
+import me.hsgamer.mcserverupdater.util.ChecksumUtils;
 import me.hsgamer.mcserverupdater.util.Utils;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 
 /**
@@ -39,6 +41,7 @@ public final class UpdateBuilder {
     private String version = "default";
     private String build = "latest";
     private File outputFile = new File("server.jar");
+    private boolean checkOnly = false;
 
     private UpdateBuilder(String project) {
         this.updater = Optional.ofNullable(UPDATERS.get(project)).map(Supplier::get).orElse(null);
@@ -119,6 +122,65 @@ public final class UpdateBuilder {
     }
 
     /**
+     * Set the checksum supplier
+     *
+     * @param checksumSupplier the checksum supplier
+     * @return the update process
+     */
+    public UpdateBuilder checksumSupplier(ChecksumUtils.ChecksumSupplier checksumSupplier) {
+        ChecksumUtils.setChecksumSupplier(checksumSupplier);
+        return this;
+    }
+
+    /**
+     * Set the checksum consumer
+     *
+     * @param checkConsumer the checksum consumer
+     * @return the update process
+     */
+    public UpdateBuilder checkConsumer(ChecksumUtils.ChecksumConsumer checkConsumer) {
+        ChecksumUtils.setChecksumConsumer(checkConsumer);
+        return this;
+    }
+
+    /**
+     * Set the checksum file
+     *
+     * @param checksumFile the checksum file
+     * @return the update process
+     */
+    public UpdateBuilder checksumFile(File checksumFile) {
+        ChecksumUtils.setChecksumSupplier(() -> Utils.isFailedToCreateFile(checksumFile) ? "" : Utils.getString(checksumFile));
+        ChecksumUtils.setChecksumConsumer(checksum -> {
+            if (!Utils.isFailedToCreateFile(checksumFile)) {
+                Utils.writeString(checksumFile, checksum);
+            }
+        });
+        return this;
+    }
+
+    /**
+     * Set the checksum file
+     *
+     * @param checksumFile the checksum file
+     * @return the update process
+     */
+    public UpdateBuilder checksumFile(String checksumFile) {
+        return checksumFile(new File(checksumFile));
+    }
+
+    /**
+     * Set if the update process should only check the checksum
+     *
+     * @param checkOnly the check only
+     * @return the update process
+     */
+    public UpdateBuilder checkOnly(boolean checkOnly) {
+        this.checkOnly = checkOnly;
+        return this;
+    }
+
+    /**
      * Execute the update process
      *
      * @return the update status
@@ -148,19 +210,28 @@ public final class UpdateBuilder {
                         Checksum checksum = (Checksum) update;
                         if (checksum.checksum(outputFile, version, build)) {
                             return UpdateStatus.UP_TO_DATE;
+                        } else if (checkOnly) {
+                            return UpdateStatus.OUT_OF_DATE;
                         }
                     }
                 } else if (Utils.isFailedToCreateFile(outputFile)) {
                     return UpdateStatus.FILE_FAILED;
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new CompletionException(e);
             }
 
             try {
-                return update.update(outputFile, version, build) ? UpdateStatus.SUCCESS : UpdateStatus.FAILED;
+                if (update.update(outputFile, version, build)) {
+                    if (update instanceof Checksum) {
+                        ((Checksum) update).setChecksum(outputFile, version, build);
+                    }
+                    return UpdateStatus.SUCCESS;
+                } else {
+                    return UpdateStatus.FAILED;
+                }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new CompletionException(e);
             }
         }).exceptionally(UpdateStatus::unknownError);
     }

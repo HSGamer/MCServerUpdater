@@ -10,10 +10,15 @@ public interface FileDigestChecksum extends SimpleChecksum {
     MessageDigest getMessageDigest() throws Exception;
 
     @Override
-    default String getFileChecksum(File file) throws Exception {
+    default String getCurrentChecksum(File file) throws Exception {
         MessageDigest messageDigest = getMessageDigest();
         messageDigest.update(Files.readAllBytes(file.toPath()));
         byte[] checksumValue = messageDigest.digest();
         return Utils.toHex(checksumValue);
+    }
+
+    @Override
+    default void setChecksum(File file, String version, String build) throws Exception {
+        // IGNORED
     }
 }

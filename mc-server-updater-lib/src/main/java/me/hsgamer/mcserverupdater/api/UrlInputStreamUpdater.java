@@ -17,7 +17,7 @@ public interface UrlInputStreamUpdater extends InputStreamUpdater {
             return null;
         }
         try {
-            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             return connection.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
