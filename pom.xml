@@ -7,7 +7,7 @@
     <groupId>me.hsgamer</groupId>
     <artifactId>mc-server-updater</artifactId>
     <packaging>pom</packaging>
-    <version>2.5.1</version>
+    <version>2.5.2</version>
 
     <modules>
         <module>mc-server-updater-lib</module>
