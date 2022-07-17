@@ -28,7 +28,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
     public InputStream getInputStream(String version, String build) {
         String url = String.format(DOWNLOAD_URL, version, build);
         try {
-            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             return connection.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,7 +40,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
     public String getChecksum(String version, String build) {
         String url = String.format(BUILD_URL, version, build);
         try {
-            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             return jsonObject.getString("md5");
@@ -59,7 +59,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
     public String getLatestBuild(String version) {
         String url = String.format(VERSION_URL, version);
         try {
-            URLConnection connection = WebUtils.openConnection(url, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject builds = jsonObject.getJSONObject("builds");

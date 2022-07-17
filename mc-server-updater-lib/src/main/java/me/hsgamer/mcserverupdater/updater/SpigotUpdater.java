@@ -21,7 +21,7 @@ public class SpigotUpdater implements Updater {
         File file = new File("BuildTools.jar");
         try {
             String buildToolsURL = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar";
-            URLConnection connection = WebUtils.openConnection(buildToolsURL, UserAgent.CHROME);
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(buildToolsURL));
             InputStream inputStream = connection.getInputStream();
             Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return file;
