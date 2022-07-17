@@ -135,11 +135,11 @@ public final class UpdateBuilder {
     /**
      * Set the checksum consumer
      *
-     * @param checkConsumer the checksum consumer
+     * @param checksumConsumer the checksum consumer
      * @return the update process
      */
-    public UpdateBuilder checkConsumer(ChecksumUtils.ChecksumConsumer checkConsumer) {
-        ChecksumUtils.setChecksumConsumer(checkConsumer);
+    public UpdateBuilder checksumConsumer(ChecksumUtils.ChecksumConsumer checksumConsumer) {
+        ChecksumUtils.setChecksumConsumer(checksumConsumer);
         return this;
     }
 
