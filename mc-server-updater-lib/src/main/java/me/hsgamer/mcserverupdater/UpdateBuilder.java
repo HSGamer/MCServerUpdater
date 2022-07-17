@@ -35,6 +35,8 @@ public final class UpdateBuilder {
         registerUpdater(PearlUpdater::new, "pearl");
         registerUpdater(WindSpigotUpdater::new, "windspigot", "wind");
         registerUpdater(MiraiUpdater::new, "mirai");
+        registerUpdater(() -> new FabricUpdater(true), "fabricmc", "fabric");
+        registerUpdater(() -> new FabricUpdater(false), "fabricmc-dev", "fabric-dev");
     }
 
     private final Updater updater;
