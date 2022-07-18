@@ -156,9 +156,14 @@ public final class UpdateBuilder {
      * @return the update process
      */
     public UpdateBuilder checksumFile(File checksumFile) {
-        ChecksumUtils.setChecksumSupplier(() -> Utils.isFailedToCreateFile(checksumFile) ? "" : Utils.getString(checksumFile));
+        ChecksumUtils.setChecksumSupplier(() -> {
+            if (!checksumFile.exists() && Utils.isFailedToCreateFile(checksumFile)) {
+                return "";
+            }
+            return Utils.getString(checksumFile);
+        });
         ChecksumUtils.setChecksumConsumer(checksum -> {
-            if (!Utils.isFailedToCreateFile(checksumFile)) {
+            if (checksumFile.exists() || !Utils.isFailedToCreateFile(checksumFile)) {
                 Utils.writeString(checksumFile, checksum);
             }
         });
