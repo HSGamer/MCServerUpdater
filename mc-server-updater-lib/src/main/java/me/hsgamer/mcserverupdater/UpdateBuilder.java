@@ -37,10 +37,10 @@ public final class UpdateBuilder {
         registerUpdater(MiraiUpdater::new, "mirai");
         registerUpdater(() -> new FabricUpdater(true), "fabricmc", "fabric");
         registerUpdater(() -> new FabricUpdater(false), "fabricmc-dev", "fabric-dev");
-        registerUpdater(() -> new SpongeUpdater(false, false), "spongevanilla-dev");
-        registerUpdater(() -> new SpongeUpdater(false, true), "spongevanilla");
-        registerUpdater(() -> new SpongeUpdater(true, false), "spongeforge-dev");
-        registerUpdater(() -> new SpongeUpdater(true, true), "spongeforge");
+        registerUpdater(() -> new SpongeUpdater(false, false), "spongevanilla");
+        registerUpdater(() -> new SpongeUpdater(false, true), "spongevanilla-recommended");
+        registerUpdater(() -> new SpongeUpdater(true, false), "spongeforge");
+        registerUpdater(() -> new SpongeUpdater(true, true), "spongeforge-recommended");
     }
 
     private final Updater updater;
