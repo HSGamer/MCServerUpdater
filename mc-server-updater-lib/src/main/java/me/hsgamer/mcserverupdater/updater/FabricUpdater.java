@@ -56,7 +56,7 @@ public class FabricUpdater implements InputStreamUpdater, SimpleChecksum, Latest
 
     @Override
     public InputStream getInputStream(String version, String build) {
-        String[] split = version.split(";");
+        String[] split = build.split(";");
         if (split.length != 2) {
             return null;
         }
