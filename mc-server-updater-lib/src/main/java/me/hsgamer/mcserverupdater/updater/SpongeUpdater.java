@@ -23,7 +23,7 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
         String baseUrl = "https://dl-api-new.spongepowered.org/api/v2/groups/org.spongepowered/artifacts/";
         String artifactUrl = baseUrl + (isForge ? "spongeforge" : "spongevanilla") + "/";
         versionUrl = artifactUrl + "versions";
-        buildUrl = artifactUrl + "%s";
+        buildUrl = versionUrl + "/%s";
     }
 
     private String getQueryReadyFetchUrl(String url) {
@@ -36,15 +36,21 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
         InputStream inputStream = connection.getInputStream();
         JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
         JSONArray assets = jsonObject.getJSONArray("assets");
+        JSONObject jarInfo = null;
+        boolean hasUniversal = false;
         for (int i = 0; i < assets.length(); i++) {
             JSONObject asset = assets.getJSONObject(i);
-            String classifier = asset.getString("classifier");
             String extension = asset.getString("extension");
-            if ((classifier == null || classifier.trim().isEmpty()) && extension.equalsIgnoreCase("jar")) {
-                return asset;
+            String classifier = asset.getString("classifier");
+            if (classifier == null || extension == null || !extension.equalsIgnoreCase("jar")) continue;
+            if (classifier.equalsIgnoreCase("universal")) {
+                hasUniversal = true;
+                jarInfo = asset;
+            } else if (classifier.trim().isEmpty() && !hasUniversal) {
+                jarInfo = asset;
             }
         }
-        return null;
+        return jarInfo;
     }
 
     @Override
