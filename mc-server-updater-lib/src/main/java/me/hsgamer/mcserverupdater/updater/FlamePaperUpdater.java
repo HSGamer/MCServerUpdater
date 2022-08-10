@@ -1,12 +1,16 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
 
 import java.util.regex.Pattern;
 
 public class FlamePaperUpdater extends JenkinsUpdater {
-    public FlamePaperUpdater() {
+    private final UpdateBuilder updateBuilder;
+
+    public FlamePaperUpdater(UpdateBuilder updateBuilder) {
         super("https://ci.2lstudios.dev/");
+        this.updateBuilder = updateBuilder;
     }
 
     @Override
@@ -22,6 +26,11 @@ public class FlamePaperUpdater extends JenkinsUpdater {
     @Override
     public String getDefaultVersion() {
         return "1.8.8";
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }
 

@@ -1,12 +1,16 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
 
 import java.util.regex.Pattern;
 
 public class PufferfishUpdater extends JenkinsUpdater {
-    public PufferfishUpdater() {
+    private final UpdateBuilder updateBuilder;
+
+    public PufferfishUpdater(UpdateBuilder updateBuilder) {
         super("https://ci.pufferfish.host/");
+        this.updateBuilder = updateBuilder;
     }
 
     @Override
@@ -24,6 +28,11 @@ public class PufferfishUpdater extends JenkinsUpdater {
     @Override
     public String getDefaultVersion() {
         return "1.17.1";
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 
     private enum Version {

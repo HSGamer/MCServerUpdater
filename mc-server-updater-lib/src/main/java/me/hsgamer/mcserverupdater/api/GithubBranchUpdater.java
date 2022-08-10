@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
 
-public abstract class GithubBranchUpdater implements SimpleChecksum, LatestBuild, UrlInputStreamUpdater {
+public abstract class GithubBranchUpdater implements LocalChecksum, LatestBuild, UrlInputStreamUpdater {
     private final String refLatestCommitUrl;
     private final String downloadUrl;
     private final String filesUrl;

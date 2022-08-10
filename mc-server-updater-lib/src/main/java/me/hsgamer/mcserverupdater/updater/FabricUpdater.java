@@ -2,9 +2,10 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
-import me.hsgamer.mcserverupdater.api.SimpleChecksum;
+import me.hsgamer.mcserverupdater.api.LocalChecksum;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -12,14 +13,16 @@ import org.json.JSONTokener;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-public class FabricUpdater implements InputStreamUpdater, SimpleChecksum, LatestBuild {
+public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestBuild {
     private static final String BASE_URL = "https://meta.fabricmc.net/v2/versions";
     private static final String LOADER_URL = BASE_URL + "/loader";
     private static final String DOWNLOAD_URL = LOADER_URL + "/%s/%s/%s/server/jar";
     private static final String INSTALLER_URL = BASE_URL + "/installer";
+    private final UpdateBuilder updateBuilder;
     private final boolean isStable;
 
-    public FabricUpdater(boolean isStable) {
+    public FabricUpdater(UpdateBuilder updateBuilder, boolean isStable) {
+        this.updateBuilder = updateBuilder;
         this.isStable = isStable;
     }
 
@@ -93,5 +96,10 @@ public class FabricUpdater implements InputStreamUpdater, SimpleChecksum, Latest
     @Override
     public String getDefaultVersion() {
         return "1.18.2";
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }

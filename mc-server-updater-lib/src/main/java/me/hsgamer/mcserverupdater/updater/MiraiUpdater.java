@@ -1,13 +1,17 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
 
 import java.util.regex.Pattern;
 
 public class MiraiUpdater extends JenkinsUpdater {
 
-    public MiraiUpdater() {
+    private final UpdateBuilder updateBuilder;
+
+    public MiraiUpdater(UpdateBuilder updateBuilder) {
         super("https://ci.codemc.io/");
+        this.updateBuilder = updateBuilder;
     }
 
     @Override
@@ -26,5 +30,10 @@ public class MiraiUpdater extends JenkinsUpdater {
     @Override
     public Pattern getArtifactRegex(String version, String build) {
         return Pattern.compile(".*\\.jar");
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }

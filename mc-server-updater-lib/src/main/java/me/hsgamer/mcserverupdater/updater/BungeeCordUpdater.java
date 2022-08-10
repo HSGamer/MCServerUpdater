@@ -1,12 +1,16 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
 
 import java.util.regex.Pattern;
 
 public class BungeeCordUpdater extends JenkinsUpdater {
-    public BungeeCordUpdater() {
+    private final UpdateBuilder updateBuilder;
+
+    public BungeeCordUpdater(UpdateBuilder updateBuilder) {
         super("https://ci.md-5.net/");
+        this.updateBuilder = updateBuilder;
     }
 
     @Override
@@ -22,5 +26,10 @@ public class BungeeCordUpdater extends JenkinsUpdater {
     @Override
     public String getDefaultVersion() {
         return "1.17.1";
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }

@@ -5,22 +5,23 @@ import me.hsgamer.mcserverupdater.api.Checksum;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
 import me.hsgamer.mcserverupdater.api.Updater;
 import me.hsgamer.mcserverupdater.updater.*;
-import me.hsgamer.mcserverupdater.util.ChecksumUtils;
 import me.hsgamer.mcserverupdater.util.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Where to create the update process
  */
 public final class UpdateBuilder {
-    private static final Map<String, Supplier<Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
+    private static final Map<String, Function<UpdateBuilder, Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
 
     static {
         registerUpdater(() -> new PaperUpdater("paper"), "paper", "papermc", "paperspigot");
@@ -37,22 +38,37 @@ public final class UpdateBuilder {
         registerUpdater(MiraiUpdater::new, "mirai");
         registerUpdater(FlameCordUpdater::new, "flamecord");
         registerUpdater(FlamePaperUpdater::new, "flamepaper");
-        registerUpdater(() -> new FabricUpdater(true), "fabricmc", "fabric");
-        registerUpdater(() -> new FabricUpdater(false), "fabricmc-dev", "fabric-dev");
+        registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, true), "fabricmc", "fabric");
+        registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, false), "fabricmc-dev", "fabric-dev");
         registerUpdater(() -> new SpongeUpdater(false, false), "spongevanilla");
         registerUpdater(() -> new SpongeUpdater(false, true), "spongevanilla-recommended");
         registerUpdater(() -> new SpongeUpdater(true, false), "spongeforge");
         registerUpdater(() -> new SpongeUpdater(true, true), "spongeforge-recommended");
     }
 
-    private final Updater updater;
+    private final String project;
     private String version = "default";
     private String build = "latest";
     private File outputFile = new File("server.jar");
     private boolean checkOnly = false;
+    private ChecksumSupplier checksumSupplier = () -> "";
+    private ChecksumConsumer checksumConsumer = s -> {
+    };
 
     private UpdateBuilder(String project) {
-        this.updater = Optional.ofNullable(UPDATERS.get(project)).map(Supplier::get).orElse(null);
+        this.project = project;
+    }
+
+    /**
+     * Register a updater
+     *
+     * @param updater the updater
+     * @param names   the names
+     */
+    public static void registerUpdater(Function<UpdateBuilder, Updater> updater, String... names) {
+        for (String name : names) {
+            UPDATERS.put(name, updater);
+        }
     }
 
     /**
@@ -62,9 +78,7 @@ public final class UpdateBuilder {
      * @param names   the names
      */
     public static void registerUpdater(Supplier<Updater> updater, String... names) {
-        for (String name : names) {
-            UPDATERS.put(name, updater);
-        }
+        registerUpdater(builder -> updater.get(), names);
     }
 
     /**
@@ -135,8 +149,8 @@ public final class UpdateBuilder {
      * @param checksumSupplier the checksum supplier
      * @return the update process
      */
-    public UpdateBuilder checksumSupplier(ChecksumUtils.ChecksumSupplier checksumSupplier) {
-        ChecksumUtils.setChecksumSupplier(checksumSupplier);
+    public UpdateBuilder checksumSupplier(ChecksumSupplier checksumSupplier) {
+        this.checksumSupplier = checksumSupplier;
         return this;
     }
 
@@ -146,8 +160,8 @@ public final class UpdateBuilder {
      * @param checksumConsumer the checksum consumer
      * @return the update process
      */
-    public UpdateBuilder checksumConsumer(ChecksumUtils.ChecksumConsumer checksumConsumer) {
-        ChecksumUtils.setChecksumConsumer(checksumConsumer);
+    public UpdateBuilder checksumConsumer(ChecksumConsumer checksumConsumer) {
+        this.checksumConsumer = checksumConsumer;
         return this;
     }
 
@@ -158,13 +172,13 @@ public final class UpdateBuilder {
      * @return the update process
      */
     public UpdateBuilder checksumFile(File checksumFile) {
-        ChecksumUtils.setChecksumSupplier(() -> {
+        checksumSupplier(() -> {
             if (!checksumFile.exists() && Utils.isFailedToCreateFile(checksumFile)) {
                 return "";
             }
             return Utils.getString(checksumFile);
         });
-        ChecksumUtils.setChecksumConsumer(checksum -> {
+        checksumConsumer(checksum -> {
             if (checksumFile.exists() || !Utils.isFailedToCreateFile(checksumFile)) {
                 Utils.writeString(checksumFile, checksum);
             }
@@ -194,12 +208,31 @@ public final class UpdateBuilder {
     }
 
     /**
+     * Get the checksum consumer
+     *
+     * @return the checksum consumer
+     */
+    public ChecksumConsumer checksumConsumer() {
+        return checksumConsumer;
+    }
+
+    /**
+     * Get the checksum supplier
+     *
+     * @return the checksum supplier
+     */
+    public ChecksumSupplier checksumSupplier() {
+        return checksumSupplier;
+    }
+
+    /**
      * Execute the update process
      *
      * @return the update status
      */
     public CompletableFuture<UpdateStatus> executeAsync() {
-        return CompletableFuture.completedFuture(updater).thenApply(update -> {
+        return CompletableFuture.supplyAsync(() -> {
+            Updater update = Optional.ofNullable(UPDATERS.get(project)).map(f -> f.apply(this)).orElse(null);
             if (update == null) {
                 return UpdateStatus.NO_PROJECT;
             }
@@ -256,5 +289,13 @@ public final class UpdateBuilder {
      */
     public UpdateStatus execute() throws Exception {
         return executeAsync().get();
+    }
+
+    public interface ChecksumSupplier {
+        String get() throws IOException;
+    }
+
+    public interface ChecksumConsumer {
+        void accept(String checksum) throws IOException;
     }
 }

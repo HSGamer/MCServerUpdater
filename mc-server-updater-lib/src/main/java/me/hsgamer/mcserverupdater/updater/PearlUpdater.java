@@ -1,12 +1,16 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
 
 import java.util.regex.Pattern;
 
 public class PearlUpdater extends GithubReleaseUpdater {
-    public PearlUpdater() {
+    private final UpdateBuilder updateBuilder;
+
+    public PearlUpdater(UpdateBuilder updateBuilder) {
         super("Pearl-Project/Pearl", true);
+        this.updateBuilder = updateBuilder;
     }
 
     @Override
@@ -17,5 +21,10 @@ public class PearlUpdater extends GithubReleaseUpdater {
     @Override
     public String getDefaultVersion() {
         return "1.18.2";
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }

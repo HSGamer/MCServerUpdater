@@ -12,7 +12,7 @@ import java.net.URLConnection;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public abstract class GithubReleaseUpdater implements SimpleChecksum, LatestBuild, UrlInputStreamUpdater {
+public abstract class GithubReleaseUpdater implements LocalChecksum, LatestBuild, UrlInputStreamUpdater {
     private final String repo;
     private final boolean versionAsTag;
     private final String releasesUrl;

@@ -1,12 +1,16 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.GithubBranchUpdater;
 
 import java.util.regex.Pattern;
 
 public class PatinaUpdater extends GithubBranchUpdater {
-    public PatinaUpdater() {
+    private final UpdateBuilder updateBuilder;
+
+    public PatinaUpdater(UpdateBuilder updateBuilder) {
         super("PatinaMC/Patina");
+        this.updateBuilder = updateBuilder;
     }
 
     @Override
@@ -22,5 +26,10 @@ public class PatinaUpdater extends GithubBranchUpdater {
     @Override
     public String getDefaultVersion() {
         return "1.17.1";
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }
