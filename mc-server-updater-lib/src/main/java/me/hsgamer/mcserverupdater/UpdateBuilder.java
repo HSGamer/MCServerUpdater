@@ -156,6 +156,16 @@ public final class UpdateBuilder {
     }
 
     /**
+     * Set the working directory
+     *
+     * @param workingDirectory the working directory
+     * @return the update process
+     */
+    public UpdateBuilder workingDirectory(String workingDirectory) {
+        return workingDirectory(new File(workingDirectory));
+    }
+
+    /**
      * Set the checksum supplier
      *
      * @param checksumSupplier the checksum supplier

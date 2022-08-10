@@ -42,6 +42,7 @@ public final class MCServerUpdater {
         OptionSpec<String> build = parser.accepts("build", "The build of the project to download").withOptionalArg().ofType(String.class).defaultsTo("latest");
         OptionSpec<String> output = parser.accepts("output", "The output file path").withOptionalArg().ofType(String.class).defaultsTo("server.jar");
         OptionSpec<String> checksumFile = parser.accepts("checksum", "The checksum file path").withOptionalArg().ofType(String.class).defaultsTo("checksum.txt");
+        OptionSpec<String> workingDirectory = parser.accepts("working-directory", "The working directory").withOptionalArg().ofType(String.class).defaultsTo(".");
         OptionSet options = parser.parse(args);
         if (options.has(help)) {
             StringWriter writer = new StringWriter();
@@ -65,10 +66,12 @@ public final class MCServerUpdater {
         String buildName = options.valueOf(build);
         String outputName = options.valueOf(output);
         String checksumFileName = options.valueOf(checksumFile);
+        String workingDirectoryName = options.valueOf(workingDirectory);
 
         UpdateBuilder builder = UpdateBuilder.updateProject(projectName)
                 .version(versionName)
                 .build(buildName)
+                .workingDirectory(workingDirectoryName)
                 .outputFile(outputName)
                 .checksumFile(checksumFileName);
 
