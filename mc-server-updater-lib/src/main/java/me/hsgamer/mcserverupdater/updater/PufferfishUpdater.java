@@ -10,9 +10,9 @@ public class PufferfishUpdater extends JenkinsUpdater {
     }
 
     @Override
-    public String getJob(String version) {
+    public String[] getJob(String version) {
         Version v = Version.getVersion(version);
-        return v == null ? "INVALID" : v.job;
+        return new String[]{v == null ? "INVALID" : v.job};
     }
 
     @Override

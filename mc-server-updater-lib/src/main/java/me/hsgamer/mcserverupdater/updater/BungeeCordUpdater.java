@@ -10,8 +10,8 @@ public class BungeeCordUpdater extends JenkinsUpdater {
     }
 
     @Override
-    public String getJob(String version) {
-        return "BungeeCord";
+    public String[] getJob(String version) {
+        return new String[]{"BungeeCord"};
     }
 
     @Override

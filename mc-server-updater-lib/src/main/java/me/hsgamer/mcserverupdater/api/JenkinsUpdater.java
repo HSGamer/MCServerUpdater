@@ -13,22 +13,18 @@ import java.util.regex.Pattern;
 
 public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdater, LatestBuild {
     private final String jenkinsUrl;
-    private final String jobUrl;
-    private final String artifactUrl;
 
     protected JenkinsUpdater(String jenkinsUrl) {
         this.jenkinsUrl = jenkinsUrl.endsWith("/") ? jenkinsUrl : jenkinsUrl + "/";
-        this.jobUrl = jenkinsUrl + "job/%s/";
-        this.artifactUrl = jobUrl + "%s/artifact/%s";
     }
 
-    public abstract String getJob(String version);
+    public abstract String[] getJob(String version);
 
     public abstract Pattern getArtifactRegex(String version, String build);
 
     @Override
     public String getChecksum(String version, String build) {
-        return String.join("||", version, build, getJob(version), getJenkinsUrl());
+        return String.join("||", version, build, String.join("_", getJob(version)), getJenkinsUrl());
     }
 
     @Override
@@ -65,13 +61,19 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
     }
 
     public String getJobUrl(String version) {
-        String job = getJob(version);
-        return String.format(jobUrl, job);
+        String[] job = getJob(version);
+        StringBuilder builder = new StringBuilder();
+        builder.append(jenkinsUrl);
+        for (String s : job) {
+            builder.append("job/").append(s).append("/");
+        }
+        return builder.toString();
     }
 
     public String getArtifactUrl(String version, String build) {
         Pattern artifactRegex = getArtifactRegex(version, build);
-        String artifactListUrl = getJobUrl(version) + build + "/api/json?tree=artifacts[fileName,relativePath]";
+        String jobUrl = getJobUrl(version);
+        String artifactListUrl = jobUrl + build + "/api/json?tree=artifacts[fileName,relativePath]";
         String artifact = "INVALID";
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactListUrl));
@@ -89,6 +91,7 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return String.format(artifactUrl, getJob(version), build, artifact);
+        String artifactUrl = jobUrl + "%s/artifact/%s";
+        return String.format(artifactUrl, build, artifact);
     }
 }
