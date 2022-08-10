@@ -2,6 +2,8 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
+import me.hsgamer.mcserverupdater.api.GetUpdateBuilder;
 import me.hsgamer.mcserverupdater.api.Updater;
 
 import java.io.File;
@@ -15,10 +17,15 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
-public class SpigotUpdater implements Updater {
+public class SpigotUpdater implements Updater, GetUpdateBuilder {
+    private final UpdateBuilder updateBuilder;
+
+    public SpigotUpdater(UpdateBuilder updateBuilder) {
+        this.updateBuilder = updateBuilder;
+    }
 
     private File downloadBuildTools() {
-        File file = new File("BuildTools.jar");
+        File file = new File(updateBuilder.workingDirectory(), "BuildTools.jar");
         try {
             String buildToolsURL = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar";
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(buildToolsURL));
@@ -62,5 +69,10 @@ public class SpigotUpdater implements Updater {
     @Override
     public String getDefaultVersion() {
         return "latest";
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }

@@ -50,6 +50,7 @@ public final class UpdateBuilder {
     private String version = "default";
     private String build = "latest";
     private File outputFile = new File("server.jar");
+    private File workingDirectory = new File(".");
     private boolean checkOnly = false;
     private ChecksumSupplier checksumSupplier = () -> "";
     private ChecksumConsumer checksumConsumer = s -> {
@@ -144,6 +145,17 @@ public final class UpdateBuilder {
     }
 
     /**
+     * Set the working directory
+     *
+     * @param workingDirectory the working directory
+     * @return the update process
+     */
+    public UpdateBuilder workingDirectory(File workingDirectory) {
+        this.workingDirectory = workingDirectory;
+        return this;
+    }
+
+    /**
      * Set the checksum supplier
      *
      * @param checksumSupplier the checksum supplier
@@ -193,7 +205,7 @@ public final class UpdateBuilder {
      * @return the update process
      */
     public UpdateBuilder checksumFile(String checksumFile) {
-        return checksumFile(new File(checksumFile));
+        return checksumFile(new File(workingDirectory, checksumFile));
     }
 
     /**
@@ -223,6 +235,28 @@ public final class UpdateBuilder {
      */
     public ChecksumSupplier checksumSupplier() {
         return checksumSupplier;
+    }
+
+    /**
+     * Get the working directory
+     *
+     * @param create if the directory should be created if it doesn't exist
+     * @return the working directory
+     */
+    public File workingDirectory(boolean create) {
+        if (!workingDirectory.exists() && create) {
+            workingDirectory.mkdirs();
+        }
+        return workingDirectory;
+    }
+
+    /**
+     * Get the working directory
+     *
+     * @return the working directory
+     */
+    public File workingDirectory() {
+        return workingDirectory(true);
     }
 
     /**
