@@ -22,12 +22,12 @@
         <dependency>
             <groupId>me.hsgamer</groupId>
             <artifactId>hscore-collections</artifactId>
-            <version>4.1.1</version>
+            <version>4.1.18</version>
         </dependency>
         <dependency>
             <groupId>me.hsgamer</groupId>
             <artifactId>hscore-web</artifactId>
-            <version>4.1.1</version>
+            <version>4.1.18</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
