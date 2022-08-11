@@ -44,7 +44,7 @@ public class SpigotUpdater implements Updater, GetUpdateBuilder {
         if (buildTools == null) {
             return false;
         }
-        File outputDir = updateBuilder.workingDirectory();
+        File outputDir = new File(updateBuilder.workingDirectory(), "output");
         try (URLClassLoader classLoader = new URLClassLoader(new URL[]{buildTools.toURI().toURL()}, getClass().getClassLoader())) {
             Class<?> clazz = Class.forName("org.spigotmc.builder.Bootstrap", true, classLoader);
             Method method = clazz.getMethod("main", String[].class);
