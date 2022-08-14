@@ -36,11 +36,16 @@ public class PufferfishUpdater extends JenkinsUpdater {
     }
 
     private enum Version {
-        PURPUR_1_17(Pattern.compile("1\\.17(\\.\\d+)?-purpur"), "Pufferfish-Purpur-1.17", Pattern.compile(Pattern.quote("Pufferfish-1.17.1-R0.1-SNAPSHOT.jar"))),
-        PURPUR_1_18(Pattern.compile("1\\.18(\\.\\d+)?-purpur"), "Pufferfish-Purpur-1.18", Pattern.compile("pufferfish-paperclip-1\\.18(\\.\\d+)?-R0\\.1-SNAPSHOT-reobf\\.jar")),
-        NORMAL_1_17(Pattern.compile("1\\.17(\\.\\d+)?"), "Pufferfish-1.17", Pattern.compile(Pattern.quote("Pufferfish-1.17.1-R0.1-SNAPSHOT.jar"))),
-        NORMAL_1_18(Pattern.compile("1\\.18(\\.\\d+)?"), "Pufferfish-1.18", Pattern.compile("pufferfish-paperclip-1\\.18(\\.\\d+)?-R0\\.1-SNAPSHOT-reobf\\.jar")),
-        NORMAL_1_19(Pattern.compile("1\\.19(\\.\\d+)?"), "Pufferfish-1.19", Pattern.compile("pufferfish-paperclip-1\\.19(\\.\\d+)?-R0\\.1-SNAPSHOT-reobf\\.jar"));
+        PURPUR_1_17(Pattern.compile("1\\.17(\\.\\d+)?-purpur"), "Pufferfish-Purpur-1.17"),
+        PURPUR_1_18(Pattern.compile("1\\.18(\\.\\d+)?-purpur"), "Pufferfish-Purpur-1.18"),
+        NORMAL_1_17(Pattern.compile("1\\.17(\\.\\d+)?"), "Pufferfish-1.17"),
+        NORMAL_1_18(Pattern.compile("1\\.18(\\.\\d+)?"), "Pufferfish-1.18"),
+        NORMAL_1_19(Pattern.compile("1\\.19(\\.\\d+)?"), "Pufferfish-1.19"),
+        PLUS_1_18(Pattern.compile("1\\.18(\\.\\d+)?-plus"), "PufferfishPlus-1.18"),
+        PLUS_1_19(Pattern.compile("1\\.19(\\.\\d+)?-plus"), "PufferfishPlus-1.19"),
+        PLUS_PURPUR_1_18(Pattern.compile("1\\.18(\\.\\d+)?-plus-purpur"), "PufferfishPlus-1.18-Purpur"),
+        PLUS_PURPUR_1_19(Pattern.compile("1\\.19(\\.\\d+)?-plus-purpur"), "PufferfishPlus-1.19-Purpur"),
+        ;
         public final Pattern versionRegex;
         public final String job;
         public final Pattern artifactRegex;
@@ -49,6 +54,10 @@ public class PufferfishUpdater extends JenkinsUpdater {
             this.versionRegex = versionRegex;
             this.job = job;
             this.artifactRegex = artifactRegex;
+        }
+
+        Version(Pattern versionRegex, String job) {
+            this(versionRegex, job, Pattern.compile(".*\\.jar"));
         }
 
         public static Version getVersion(String version) {
