@@ -5,6 +5,7 @@ import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -52,7 +53,16 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
 
     @Override
     public String getDefaultVersion() {
-        return "1.17.1";
+        try {
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(URL));
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            JSONArray builds = jsonObject.getJSONArray("versions");
+            return builds.getString(builds.length() - 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
