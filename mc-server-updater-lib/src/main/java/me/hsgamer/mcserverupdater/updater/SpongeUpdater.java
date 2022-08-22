@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 
 public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, LatestBuild {
+    private final String artifactUrl;
     private final String versionUrl;
     private final String buildUrl;
     private final boolean isRecommended;
@@ -21,8 +22,8 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
     public SpongeUpdater(boolean isForge, boolean isRecommended) {
         this.isRecommended = isRecommended;
         String baseUrl = "https://dl-api-new.spongepowered.org/api/v2/groups/org.spongepowered/artifacts/";
-        String artifactUrl = baseUrl + (isForge ? "spongeforge" : "spongevanilla") + "/";
-        versionUrl = artifactUrl + "versions";
+        this.artifactUrl = baseUrl + (isForge ? "spongeforge" : "spongevanilla");
+        versionUrl = artifactUrl + "/versions";
         buildUrl = versionUrl + "/%s";
     }
 
@@ -109,6 +110,16 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
 
     @Override
     public String getDefaultVersion() {
-        return "1.12.2";
+        try {
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactUrl));
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            JSONObject tagsObject = jsonObject.getJSONObject("tags");
+            JSONArray versions = tagsObject.getJSONArray("minecraft");
+            return versions.getString(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
