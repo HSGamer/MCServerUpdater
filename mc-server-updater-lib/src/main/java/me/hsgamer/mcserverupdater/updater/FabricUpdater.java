@@ -15,9 +15,10 @@ import java.net.URLConnection;
 
 public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestBuild {
     private static final String BASE_URL = "https://meta.fabricmc.net/v2/versions";
+    private static final String GAME_URL = BASE_URL + "/game";
     private static final String LOADER_URL = BASE_URL + "/loader";
-    private static final String DOWNLOAD_URL = LOADER_URL + "/%s/%s/%s/server/jar";
     private static final String INSTALLER_URL = BASE_URL + "/installer";
+    private static final String DOWNLOAD_URL = LOADER_URL + "/%s/%s/%s/server/jar";
     private final UpdateBuilder updateBuilder;
     private final boolean isStable;
 
@@ -43,6 +44,10 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
             e.printStackTrace();
             return null;
         }
+    }
+
+    private String getLatestGameVersion() {
+        return getLatestVersion(GAME_URL);
     }
 
     private String getLatestLoaderVersion() {
@@ -95,7 +100,7 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
 
     @Override
     public String getDefaultVersion() {
-        return "1.18.2";
+        return getLatestGameVersion();
     }
 
     @Override
