@@ -280,7 +280,7 @@ public final class UpdateBuilder {
             if (update == null) {
                 return UpdateStatus.NO_PROJECT;
             }
-            if ("default".equalsIgnoreCase(version)) {
+            if ("default".equalsIgnoreCase(version) || "latest".equalsIgnoreCase(version)) {
                 version = update.getDefaultVersion();
             }
             if (version == null) {
