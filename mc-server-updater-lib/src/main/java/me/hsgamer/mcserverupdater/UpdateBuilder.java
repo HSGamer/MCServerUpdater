@@ -45,6 +45,7 @@ public final class UpdateBuilder {
         registerUpdater(() -> new SpongeUpdater(true, false), "spongeforge");
         registerUpdater(() -> new SpongeUpdater(true, true), "spongeforge-recommended");
         registerUpdater(TitaniumUpdater::new, "titanium", "titaniummc");
+        registerUpdater(PrismarineUpdater::new, "prismarine");
     }
 
     private final String project;
