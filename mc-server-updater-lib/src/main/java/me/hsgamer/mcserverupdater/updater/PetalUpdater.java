@@ -5,11 +5,11 @@ import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
 
 import java.util.regex.Pattern;
 
-public class PrismarineUpdater extends GithubReleaseUpdater {
+public class PetalUpdater extends GithubReleaseUpdater {
     private final UpdateBuilder updateBuilder;
 
-    public PrismarineUpdater(UpdateBuilder updateBuilder) {
-        super("PrismarineTeam/Prismarine", false);
+    public PetalUpdater(UpdateBuilder updateBuilder) {
+        super("Bloom-host/Petal", false);
         this.updateBuilder = updateBuilder;
     }
 
@@ -20,7 +20,7 @@ public class PrismarineUpdater extends GithubReleaseUpdater {
 
     @Override
     public Pattern getArtifactPattern(String version, String build) {
-        return Pattern.compile(".+paperclip.+reobf\\.jar");
+        return Pattern.compile(".*\\.jar");
     }
 
     @Override
