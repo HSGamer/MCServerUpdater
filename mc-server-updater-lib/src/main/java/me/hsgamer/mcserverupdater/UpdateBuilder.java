@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -55,6 +56,8 @@ public final class UpdateBuilder {
     private boolean checkOnly = false;
     private ChecksumSupplier checksumSupplier = () -> "";
     private ChecksumConsumer checksumConsumer = s -> {
+    };
+    private Consumer<String> debugConsumer = s -> {
     };
 
     private UpdateBuilder(String project) {
@@ -231,6 +234,17 @@ public final class UpdateBuilder {
     }
 
     /**
+     * Set the debug consumer
+     *
+     * @param debugConsumer the debug consumer
+     * @return the update process
+     */
+    public UpdateBuilder debugConsumer(Consumer<String> debugConsumer) {
+        this.debugConsumer = debugConsumer;
+        return this;
+    }
+
+    /**
      * Get the checksum consumer
      *
      * @return the checksum consumer
@@ -268,6 +282,15 @@ public final class UpdateBuilder {
      */
     public File workingDirectory() {
         return workingDirectory(true);
+    }
+
+    /**
+     * Get the debug consumer
+     *
+     * @return the debug consumer
+     */
+    public Consumer<String> debugConsumer() {
+        return debugConsumer;
     }
 
     /**

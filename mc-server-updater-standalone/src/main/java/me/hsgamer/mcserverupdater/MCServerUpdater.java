@@ -15,7 +15,7 @@ public final class MCServerUpdater {
 
     static {
         ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.INFO);
+        handler.setLevel(Level.ALL);
         handler.setFormatter(new Formatter() {
             @Override
             public String format(LogRecord logRecord) {
@@ -73,7 +73,8 @@ public final class MCServerUpdater {
                 .build(buildName)
                 .workingDirectory(workingDirectoryName)
                 .outputFile(outputName)
-                .checksumFile(checksumFileName);
+                .checksumFile(checksumFileName)
+                .debugConsumer(LOGGER::finest);
 
         try {
             LOGGER.info("Start updating...");
