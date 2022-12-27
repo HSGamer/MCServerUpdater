@@ -73,8 +73,7 @@ public final class MCServerUpdater {
                 .build(buildName)
                 .workingDirectory(workingDirectoryName)
                 .outputFile(outputName)
-                .checksumFile(checksumFileName)
-                .debugConsumer(LOGGER::finest);
+                .checksumFile(checksumFileName);
 
         try {
             LOGGER.info("Start updating...");
