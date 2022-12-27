@@ -56,7 +56,7 @@ public class SpigotUpdater implements Updater, GetUpdateBuilder {
         return true;
     }
 
-    private boolean runBuildTools(File buildTools, File outputDir, String version) throws Exception {
+    private boolean runBuildTools(File buildTools, File outputDir, String version) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(
                 "java",
                 "-jar",
