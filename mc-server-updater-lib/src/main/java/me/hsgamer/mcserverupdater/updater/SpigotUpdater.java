@@ -9,9 +9,6 @@ import me.hsgamer.mcserverupdater.api.Updater;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -45,25 +42,35 @@ public class SpigotUpdater implements Updater, GetUpdateBuilder {
             return false;
         }
         File outputDir = new File(updateBuilder.workingDirectory(), "output");
-        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{buildTools.toURI().toURL()}, getClass().getClassLoader())) {
-            Class<?> clazz = Class.forName("org.spigotmc.builder.Bootstrap", true, classLoader);
-            Method method = clazz.getMethod("main", String[].class);
-            method.invoke(null, (Object) new String[]{
-                    "--rev", version,
-                    "--output-dir", outputDir.getAbsolutePath(),
-                    "--compile-if-changed"
-            });
-
-            for (File outputFile : Objects.requireNonNull(outputDir.listFiles())) {
-                String name = outputFile.getName();
-                if (name.startsWith("spigot-") && name.endsWith(".jar")) {
-                    Files.copy(outputFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    Files.delete(outputFile.toPath());
-                    break;
-                }
-            }
-            return true;
+        if (!runBuildTools(buildTools, outputDir, version)) {
+            return false;
         }
+        for (File outputFile : Objects.requireNonNull(outputDir.listFiles())) {
+            String name = outputFile.getName();
+            if (name.startsWith("spigot-") && name.endsWith(".jar")) {
+                Files.copy(outputFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.delete(outputFile.toPath());
+                break;
+            }
+        }
+        return true;
+    }
+
+    private boolean runBuildTools(File buildTools, File outputDir, String version) throws Exception {
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "java",
+                "-jar",
+                buildTools.getAbsolutePath(),
+                "--rev", version,
+                "--output-dir", outputDir.getAbsolutePath(),
+                "--compile-if-changed"
+        );
+        processBuilder.directory(updateBuilder.workingDirectory());
+        processBuilder.redirectErrorStream(true);
+        processBuilder.inheritIO();
+        Process process = processBuilder.start();
+        process.waitFor();
+        return process.exitValue() == 0;
     }
 
     @Override
