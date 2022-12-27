@@ -17,8 +17,8 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
     private static final String BASE_URL = "https://meta.fabricmc.net/v2/versions";
     private static final String GAME_URL = BASE_URL + "/game";
     private static final String LOADER_URL = BASE_URL + "/loader";
-    private static final String INSTALLER_URL = BASE_URL + "/installer";
     private static final String DOWNLOAD_URL = LOADER_URL + "/%s/%s/%s/server/jar";
+    private static final String INSTALLER_URL = BASE_URL + "/installer";
     private final UpdateBuilder updateBuilder;
     private final boolean isStable;
 

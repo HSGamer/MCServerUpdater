@@ -36,8 +36,6 @@ public final class UpdateBuilder {
         registerUpdater(PearlUpdater::new, "pearl");
         registerUpdater(WindSpigotUpdater::new, "windspigot", "wind");
         registerUpdater(MiraiUpdater::new, "mirai");
-        registerUpdater(FlameCordUpdater::new, "flamecord");
-        registerUpdater(FlamePaperUpdater::new, "flamepaper");
         registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, true), "fabricmc", "fabric");
         registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, false), "fabricmc-dev", "fabric-dev");
         registerUpdater(() -> new SpongeUpdater(false, false), "spongevanilla");

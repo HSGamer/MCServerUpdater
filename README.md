@@ -5,7 +5,7 @@
 ## Download
 
 Download the latest version of MCServerUpdater
-from [here](https://github.com/HSGamer/MCServerUpdater/releases/tag/1.0.1)
+from [here](https://github.com/HSGamer/MCServerUpdater/releases)
 
 ## Arguments
 
