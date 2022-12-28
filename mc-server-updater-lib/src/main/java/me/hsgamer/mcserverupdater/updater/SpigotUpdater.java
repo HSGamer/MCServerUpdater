@@ -69,10 +69,14 @@ public class SpigotUpdater implements Updater {
         );
         processBuilder.directory(updateBuilder.workingDirectory());
         processBuilder.redirectErrorStream(true);
-        processBuilder.inheritIO();
         Process process = processBuilder.start();
-        process.waitFor();
-        return process.exitValue() == 0;
+        InputStream inputStream = process.getInputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            updateBuilder.debug(new String(buffer, 0, length).trim());
+        }
+        return process.waitFor() == 0;
     }
 
     @Override
