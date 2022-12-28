@@ -97,3 +97,9 @@ class Main {
 ```
 
 3. Do whatever you want with the `UpdateStatus`
+
+## Additional System Properties
+
+| Name                             | Description                                                          | Default |
+|----------------------------------|----------------------------------------------------------------------|---------|
+| `MCServerUpdater.javaExecutable` | The Java executable to run external processes (Spigot Updater, etc.) | `java`  |

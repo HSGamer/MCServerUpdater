@@ -8,9 +8,6 @@ import me.hsgamer.mcserverupdater.api.Updater;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -27,6 +24,7 @@ public class SpigotUpdater implements Updater {
         File file = new File(updateBuilder.workingDirectory(), "BuildTools.jar");
         try {
             String buildToolsURL = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar";
+            updateBuilder.debug("Downloading BuildTools from " + buildToolsURL);
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(buildToolsURL));
             InputStream inputStream = connection.getInputStream();
             Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -44,25 +42,44 @@ public class SpigotUpdater implements Updater {
             return false;
         }
         File outputDir = new File(updateBuilder.workingDirectory(), "output");
-        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{buildTools.toURI().toURL()}, getClass().getClassLoader())) {
-            Class<?> clazz = Class.forName("org.spigotmc.builder.Bootstrap", true, classLoader);
-            Method method = clazz.getMethod("main", String[].class);
-            method.invoke(null, (Object) new String[]{
-                    "--rev", version,
-                    "--output-dir", outputDir.getAbsolutePath(),
-                    "--compile-if-changed"
-            });
-
-            for (File outputFile : Objects.requireNonNull(outputDir.listFiles())) {
-                String name = outputFile.getName();
-                if (name.startsWith("spigot-") && name.endsWith(".jar")) {
-                    Files.copy(outputFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    Files.delete(outputFile.toPath());
-                    break;
-                }
-            }
-            return true;
+        updateBuilder.debug("Running BuildTools...");
+        if (!runBuildTools(buildTools, outputDir, version)) {
+            return false;
         }
+        for (File outputFile : Objects.requireNonNull(outputDir.listFiles())) {
+            String name = outputFile.getName();
+            if (name.startsWith("spigot-") && name.endsWith(".jar")) {
+                updateBuilder.debug("Copying " + name + " to " + file.getName());
+                Files.copy(outputFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.delete(outputFile.toPath());
+                break;
+            }
+        }
+        return true;
+    }
+
+    private boolean runBuildTools(File buildTools, File outputDir, String version) throws IOException, InterruptedException {
+        String javaExecutable = System.getProperty("MCServerUpdater.javaExecutable", "java");
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                javaExecutable,
+                "-jar",
+                buildTools.getAbsolutePath(),
+                "--rev", version,
+                "--output-dir", outputDir.getAbsolutePath(),
+                "--compile-if-changed",
+                "--disable-java-check"
+        );
+        processBuilder.directory(updateBuilder.workingDirectory());
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(process::destroy));
+        InputStream inputStream = process.getInputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            updateBuilder.debug(new String(buffer, 0, length).trim());
+        }
+        return process.waitFor() == 0;
     }
 
     @Override
