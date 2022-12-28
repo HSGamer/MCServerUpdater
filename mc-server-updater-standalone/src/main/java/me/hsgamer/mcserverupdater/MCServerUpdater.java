@@ -30,6 +30,7 @@ public final class MCServerUpdater {
             }
         });
         LOGGER.addHandler(handler);
+        LOGGER.setLevel(Level.ALL);
         LOGGER.setUseParentHandlers(false);
     }
 
