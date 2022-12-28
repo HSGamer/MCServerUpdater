@@ -15,7 +15,7 @@ public final class MCServerUpdater {
 
     static {
         ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.INFO);
+        handler.setLevel(Level.ALL);
         handler.setFormatter(new Formatter() {
             @Override
             public String format(LogRecord logRecord) {
@@ -30,6 +30,7 @@ public final class MCServerUpdater {
             }
         });
         LOGGER.addHandler(handler);
+        LOGGER.setLevel(Level.ALL);
         LOGGER.setUseParentHandlers(false);
     }
 
