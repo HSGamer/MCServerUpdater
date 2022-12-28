@@ -59,13 +59,15 @@ public class SpigotUpdater implements Updater {
     }
 
     private boolean runBuildTools(File buildTools, File outputDir, String version) throws IOException, InterruptedException {
+        String javaExecutable = System.getProperty("MCServerUpdater.javaExecutable", "java");
         ProcessBuilder processBuilder = new ProcessBuilder(
-                "java",
+                javaExecutable,
                 "-jar",
                 buildTools.getAbsolutePath(),
                 "--rev", version,
                 "--output-dir", outputDir.getAbsolutePath(),
-                "--compile-if-changed"
+                "--compile-if-changed",
+                "--disable-java-check"
         );
         processBuilder.directory(updateBuilder.workingDirectory());
         processBuilder.redirectErrorStream(true);
