@@ -24,6 +24,7 @@ public class SpigotUpdater implements Updater {
         File file = new File(updateBuilder.workingDirectory(), "BuildTools.jar");
         try {
             String buildToolsURL = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar";
+            updateBuilder.debug("Downloading BuildTools from " + buildToolsURL);
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(buildToolsURL));
             InputStream inputStream = connection.getInputStream();
             Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -41,12 +42,14 @@ public class SpigotUpdater implements Updater {
             return false;
         }
         File outputDir = new File(updateBuilder.workingDirectory(), "output");
+        updateBuilder.debug("Running BuildTools...");
         if (!runBuildTools(buildTools, outputDir, version)) {
             return false;
         }
         for (File outputFile : Objects.requireNonNull(outputDir.listFiles())) {
             String name = outputFile.getName();
             if (name.startsWith("spigot-") && name.endsWith(".jar")) {
+                updateBuilder.debug("Copying " + name + " to " + file.getName());
                 Files.copy(outputFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 Files.delete(outputFile.toPath());
                 break;
