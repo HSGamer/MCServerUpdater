@@ -2,6 +2,7 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
@@ -15,12 +16,14 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 
 public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, LatestBuild {
+    private final UpdateBuilder updateBuilder;
     private final String projectUrl;
     private final String versionUrl;
     private final String buildUrl;
     private final String downloadUrl;
 
-    public PaperUpdater(String project) {
+    public PaperUpdater(UpdateBuilder updateBuilder, String project) {
+        this.updateBuilder = updateBuilder;
         projectUrl = String.format("https://api.papermc.io/v2/projects/%s/", project);
         versionUrl = projectUrl + "versions/%s/";
         buildUrl = versionUrl + "builds/%s/";
@@ -29,6 +32,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
 
     private JSONObject getDownload(String version, String build) throws IOException {
         String formattedUrl = String.format(buildUrl, version, build);
+        updateBuilder.debug("Getting download from " + formattedUrl);
         URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
         InputStream inputStream = connection.getInputStream();
         JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
@@ -63,6 +67,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
             return null;
         }
         String formattedUrl = String.format(downloadUrl, version, build, fileName);
+        updateBuilder.debug("Getting input stream from " + formattedUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
             return connection.getInputStream();
@@ -75,6 +80,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
     @Override
     public String getLatestBuild(String version) {
         String formattedUrl = String.format(versionUrl, version);
+        updateBuilder.debug("Getting latest build from " + formattedUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
             InputStream inputStream = connection.getInputStream();
@@ -89,6 +95,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
 
     @Override
     public String getDefaultVersion() {
+        updateBuilder.debug("Getting default version from " + projectUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(projectUrl));
             InputStream inputStream = connection.getInputStream();
@@ -99,5 +106,10 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }

@@ -13,6 +13,7 @@ public interface UrlInputStreamUpdater extends InputStreamUpdater {
     @Override
     default InputStream getInputStream(String version, String build) {
         String url = getFileUrl(version, build);
+        getUpdateBuilder().debug("Getting input stream from " + url);
         if (url == null) {
             return null;
         }
@@ -20,7 +21,7 @@ public interface UrlInputStreamUpdater extends InputStreamUpdater {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             return connection.getInputStream();
         } catch (IOException e) {
-            e.printStackTrace();
+            getUpdateBuilder().debug(e);
             return null;
         }
     }

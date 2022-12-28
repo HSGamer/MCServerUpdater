@@ -28,6 +28,7 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
     }
 
     private String getLatestVersion(String url) {
+        updateBuilder.debug("Getting latest version from " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
@@ -71,6 +72,7 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
         String loaderVersion = split[0];
         String installerVersion = split[1];
         String downloadUrl = getLatestDownloadUrl(version, loaderVersion, installerVersion);
+        updateBuilder.debug("Getting input stream from " + downloadUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(downloadUrl));
             return connection.getInputStream();
@@ -83,10 +85,12 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
     @Override
     public String getLatestBuild(String version) {
         String loaderVersion = getLatestLoaderVersion();
+        updateBuilder.debug("Latest loader version: " + loaderVersion);
         if (loaderVersion == null) {
             return null;
         }
         String installerVersion = getLatestInstallerVersion();
+        updateBuilder.debug("Latest installer version: " + installerVersion);
         if (installerVersion == null) {
             return null;
         }
