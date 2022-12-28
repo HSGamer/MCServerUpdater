@@ -29,6 +29,7 @@ public abstract class GithubBranchUpdater implements LocalChecksum, LatestBuild,
 
     public String getFile(String version, String build) {
         String url = String.format(filesUrl, build);
+        getUpdateBuilder().debug("Getting files from " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
@@ -40,11 +41,12 @@ public abstract class GithubBranchUpdater implements LocalChecksum, LatestBuild,
                 String path = file.getString("path");
                 String type = file.getString("type");
                 if (type.equalsIgnoreCase("blob") && pattern.matcher(path).matches()) {
+                    getUpdateBuilder().debug("Found file: " + path);
                     return path;
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            getUpdateBuilder().debug(e);
         }
         return null;
     }
@@ -61,13 +63,16 @@ public abstract class GithubBranchUpdater implements LocalChecksum, LatestBuild,
     @Override
     public String getLatestBuild(String version) {
         String url = String.format(refLatestCommitUrl, getBranch(version));
+        getUpdateBuilder().debug("Getting latest build from " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-            return jsonObject.getString("sha");
+            String sha = jsonObject.getString("sha");
+            getUpdateBuilder().debug("Found latest build: " + sha);
+            return sha;
         } catch (IOException e) {
-            e.printStackTrace();
+            getUpdateBuilder().debug(e);
             return null;
         }
     }

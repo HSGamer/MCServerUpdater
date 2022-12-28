@@ -14,8 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Where to create the update process
@@ -24,10 +24,10 @@ public final class UpdateBuilder {
     private static final Map<String, Function<UpdateBuilder, Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
 
     static {
-        registerUpdater(() -> new PaperUpdater("paper"), "paper", "papermc", "paperspigot");
-        registerUpdater(() -> new PaperUpdater("travertine"), "travertine");
-        registerUpdater(() -> new PaperUpdater("waterfall"), "waterfall");
-        registerUpdater(() -> new PaperUpdater("velocity"), "velocity");
+        registerUpdater(updateBuilder -> new PaperUpdater(updateBuilder, "paper"), "paper", "papermc", "paperspigot");
+        registerUpdater(updateBuilder -> new PaperUpdater(updateBuilder, "travertine"), "travertine");
+        registerUpdater(updateBuilder -> new PaperUpdater(updateBuilder, "waterfall"), "waterfall");
+        registerUpdater(updateBuilder -> new PaperUpdater(updateBuilder, "velocity"), "velocity");
         registerUpdater(PurpurUpdater::new, "purpur", "purpurmc");
         registerUpdater(BungeeCordUpdater::new, "bungeecord", "bungee");
         registerUpdater(SpigotUpdater::new, "spigot", "spigotmc");
@@ -38,10 +38,10 @@ public final class UpdateBuilder {
         registerUpdater(MiraiUpdater::new, "mirai");
         registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, true), "fabricmc", "fabric");
         registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, false), "fabricmc-dev", "fabric-dev");
-        registerUpdater(() -> new SpongeUpdater(false, false), "spongevanilla");
-        registerUpdater(() -> new SpongeUpdater(false, true), "spongevanilla-recommended");
-        registerUpdater(() -> new SpongeUpdater(true, false), "spongeforge");
-        registerUpdater(() -> new SpongeUpdater(true, true), "spongeforge-recommended");
+        registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, false, false), "spongevanilla");
+        registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, false, true), "spongevanilla-recommended");
+        registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, true, false), "spongeforge");
+        registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, true, true), "spongeforge-recommended");
         registerUpdater(TitaniumUpdater::new, "titaniummc", "titanium");
         registerUpdater(PrismarineUpdater::new, "prismarine");
         registerUpdater(PetalUpdater::new, "petal");
@@ -55,6 +55,8 @@ public final class UpdateBuilder {
     private boolean checkOnly = false;
     private ChecksumSupplier checksumSupplier = () -> "";
     private ChecksumConsumer checksumConsumer = s -> {
+    };
+    private Consumer<String> debugConsumer = s -> {
     };
 
     private UpdateBuilder(String project) {
@@ -71,16 +73,6 @@ public final class UpdateBuilder {
         for (String name : names) {
             UPDATERS.put(name, updater);
         }
-    }
-
-    /**
-     * Register a updater
-     *
-     * @param updater the updater
-     * @param names   the names
-     */
-    public static void registerUpdater(Supplier<Updater> updater, String... names) {
-        registerUpdater(builder -> updater.get(), names);
     }
 
     /**
@@ -189,6 +181,17 @@ public final class UpdateBuilder {
     }
 
     /**
+     * Set the debug consumer
+     *
+     * @param debugConsumer the debug consumer
+     * @return the update process
+     */
+    public UpdateBuilder debugConsumer(Consumer<String> debugConsumer) {
+        this.debugConsumer = debugConsumer;
+        return this;
+    }
+
+    /**
      * Set the checksum file
      *
      * @param checksumFile the checksum file
@@ -268,6 +271,58 @@ public final class UpdateBuilder {
      */
     public File workingDirectory() {
         return workingDirectory(true);
+    }
+
+    /**
+     * Get the debug consumer
+     *
+     * @return the debug consumer
+     */
+    public Consumer<String> debugConsumer() {
+        return debugConsumer;
+    }
+
+    /**
+     * Debug a message
+     *
+     * @param message the message
+     */
+    public void debug(String message) {
+        debugConsumer.accept(message);
+    }
+
+    /**
+     * Debug a message
+     *
+     * @param message the message
+     * @param args    the arguments
+     */
+    public void debug(String message, Object... args) {
+        debugConsumer.accept(String.format(message, args));
+    }
+
+    /**
+     * Debug a throwable
+     *
+     * @param throwable the throwable
+     */
+    public void debug(Throwable throwable) {
+        debug(throwable.getClass().getName() + ": " + throwable.getMessage());
+        for (StackTraceElement element : throwable.getStackTrace()) {
+            debug("    " + element.toString());
+        }
+        Optional.ofNullable(throwable.getCause()).ifPresent(cause -> debug("Caused by: " + cause.getMessage(), cause));
+    }
+
+    /**
+     * Debug a message
+     *
+     * @param message   the message
+     * @param throwable the throwable
+     */
+    private void debug(String message, Throwable throwable) {
+        debug(message);
+        debug(throwable);
     }
 
     /**

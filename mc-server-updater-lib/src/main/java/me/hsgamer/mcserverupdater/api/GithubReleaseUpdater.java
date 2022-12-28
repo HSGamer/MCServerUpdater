@@ -33,6 +33,7 @@ public abstract class GithubReleaseUpdater implements LocalChecksum, LatestBuild
     @Override
     public String getFileUrl(String version, String build) {
         String assetUrl = String.format(releaseAssetUrl, build);
+        getUpdateBuilder().debug("Getting asset URL from " + assetUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(assetUrl));
             InputStream inputStream = connection.getInputStream();
@@ -41,12 +42,14 @@ public abstract class GithubReleaseUpdater implements LocalChecksum, LatestBuild
                 JSONObject object = array.getJSONObject(i);
                 String name = object.getString("name");
                 if (getArtifactPattern(version, build).matcher(name).matches()) {
-                    return object.getString("browser_download_url");
+                    String url = object.getString("browser_download_url");
+                    getUpdateBuilder().debug("Found asset URL: " + url);
+                    return url;
                 }
             }
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            getUpdateBuilder().debug(e);
             return null;
         }
     }
@@ -56,28 +59,32 @@ public abstract class GithubReleaseUpdater implements LocalChecksum, LatestBuild
         JSONObject object = null;
         if (versionAsTag) {
             String tagToIdUrl = String.format(releaseByTagUrl, version);
+            getUpdateBuilder().debug("Getting release ID from " + tagToIdUrl);
             try {
                 URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(tagToIdUrl));
                 InputStream inputStream = connection.getInputStream();
                 object = new JSONObject(new JSONTokener(inputStream));
             } catch (IOException e) {
-                e.printStackTrace();
+                getUpdateBuilder().debug(e);
             }
         } else {
             String url = releasesUrl + "?per_page=1";
+            getUpdateBuilder().debug("Getting release ID from " + url);
             try {
                 URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
                 InputStream inputStream = connection.getInputStream();
                 JSONArray array = new JSONArray(new JSONTokener(inputStream));
                 object = array.getJSONObject(0);
             } catch (IOException e) {
-                e.printStackTrace();
+                getUpdateBuilder().debug(e);
             }
         }
         if (object == null) {
             return null;
         }
-        return Objects.toString(object.get("id"), null);
+        String id = Objects.toString(object.get("id"), null);
+        getUpdateBuilder().debug("Found release ID: " + id);
+        return id;
     }
 
     @Override

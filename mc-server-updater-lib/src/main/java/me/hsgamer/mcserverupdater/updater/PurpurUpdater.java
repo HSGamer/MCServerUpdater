@@ -2,6 +2,7 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
@@ -19,6 +20,11 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
     private static final String VERSION_URL = URL + "%s/";
     private static final String BUILD_URL = VERSION_URL + "%s/";
     private static final String DOWNLOAD_URL = BUILD_URL + "download";
+    private final UpdateBuilder updateBuilder;
+
+    public PurpurUpdater(UpdateBuilder updateBuilder) {
+        this.updateBuilder = updateBuilder;
+    }
 
     @Override
     public MessageDigest getMessageDigest() throws Exception {
@@ -28,6 +34,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
     @Override
     public InputStream getInputStream(String version, String build) {
         String url = String.format(DOWNLOAD_URL, version, build);
+        updateBuilder.debug("Downloading from " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             return connection.getInputStream();
@@ -40,6 +47,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
     @Override
     public String getChecksum(String version, String build) {
         String url = String.format(BUILD_URL, version, build);
+        updateBuilder.debug("Getting checksum from " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
@@ -53,6 +61,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
 
     @Override
     public String getDefaultVersion() {
+        updateBuilder.debug("Getting default version from " + URL);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(URL));
             InputStream inputStream = connection.getInputStream();
@@ -66,8 +75,14 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater, La
     }
 
     @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
+    }
+
+    @Override
     public String getLatestBuild(String version) {
         String url = String.format(VERSION_URL, version);
+        updateBuilder.debug("Getting latest build from " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();

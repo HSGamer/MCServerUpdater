@@ -3,7 +3,6 @@ package me.hsgamer.mcserverupdater.updater;
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
-import me.hsgamer.mcserverupdater.api.GetUpdateBuilder;
 import me.hsgamer.mcserverupdater.api.Updater;
 
 import java.io.File;
@@ -14,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
-public class SpigotUpdater implements Updater, GetUpdateBuilder {
+public class SpigotUpdater implements Updater {
     private final UpdateBuilder updateBuilder;
 
     public SpigotUpdater(UpdateBuilder updateBuilder) {

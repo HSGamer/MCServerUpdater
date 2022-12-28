@@ -10,10 +10,16 @@ public interface SimpleChecksum extends Checksum {
     @Override
     default boolean checksum(File file, String version, String build) throws Exception {
         String checksum = getChecksum(version, build);
+        if (this instanceof Updater) {
+            ((Updater) this).getUpdateBuilder().debug("Checksum: " + checksum);
+        }
         if (checksum == null) {
             return false;
         }
         String currentChecksum = getCurrentChecksum(file);
+        if (this instanceof Updater) {
+            ((Updater) this).getUpdateBuilder().debug("Current checksum: " + currentChecksum);
+        }
         return currentChecksum.equals(checksum);
     }
 }

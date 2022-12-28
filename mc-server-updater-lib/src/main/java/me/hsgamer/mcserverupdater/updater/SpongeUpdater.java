@@ -2,6 +2,7 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.LatestBuild;
@@ -14,12 +15,14 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 
 public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, LatestBuild {
+    private final UpdateBuilder updateBuilder;
     private final String artifactUrl;
     private final String versionUrl;
     private final String buildUrl;
     private final boolean isRecommended;
 
-    public SpongeUpdater(boolean isForge, boolean isRecommended) {
+    public SpongeUpdater(UpdateBuilder updateBuilder, boolean isForge, boolean isRecommended) {
+        this.updateBuilder = updateBuilder;
         this.isRecommended = isRecommended;
         String baseUrl = "https://dl-api-new.spongepowered.org/api/v2/groups/org.spongepowered/artifacts/";
         this.artifactUrl = baseUrl + (isForge ? "spongeforge" : "spongevanilla");
@@ -33,6 +36,7 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
 
     private JSONObject getJarInfo(String build) throws Exception {
         String url = String.format(buildUrl, build);
+        updateBuilder.debug("Fetching " + url);
         URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
         InputStream inputStream = connection.getInputStream();
         JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
@@ -67,6 +71,7 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
                 return null;
             }
             String downloadUrl = jarInfo.getString("downloadUrl");
+            updateBuilder.debug("Getting the input stream from " + downloadUrl);
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(downloadUrl));
             return connection.getInputStream();
         } catch (Exception e) {
@@ -78,6 +83,7 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
     @Override
     public String getLatestBuild(String version) {
         String url = getQueryReadyFetchUrl(versionUrl) + "&limit=1&tags=,minecraft:" + version;
+        updateBuilder.debug("Get latest build from " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             InputStream inputStream = connection.getInputStream();
@@ -110,6 +116,7 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
 
     @Override
     public String getDefaultVersion() {
+        updateBuilder.debug("Get default version from " + artifactUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactUrl));
             InputStream inputStream = connection.getInputStream();
@@ -121,5 +128,10 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }
