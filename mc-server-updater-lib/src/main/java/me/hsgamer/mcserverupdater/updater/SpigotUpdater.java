@@ -72,6 +72,7 @@ public class SpigotUpdater implements Updater {
         processBuilder.directory(updateBuilder.workingDirectory());
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(process::destroy));
         InputStream inputStream = process.getInputStream();
         byte[] buffer = new byte[1024];
         int length;
