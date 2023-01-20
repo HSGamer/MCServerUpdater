@@ -33,9 +33,6 @@ public final class UpdateBuilder {
         registerUpdater(SpigotUpdater::new, "spigot", "spigotmc");
         registerUpdater(PatinaUpdater::new, "patina", "patinamc");
         registerUpdater(PufferfishUpdater::new, "pufferfish");
-        registerUpdater(PearlUpdater::new, "pearl");
-        registerUpdater(WindSpigotUpdater::new, "windspigot", "wind");
-        registerUpdater(MiraiUpdater::new, "mirai");
         registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, true), "fabricmc", "fabric");
         registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, false), "fabricmc-dev", "fabric-dev");
         registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, false, false), "spongevanilla");
@@ -43,8 +40,6 @@ public final class UpdateBuilder {
         registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, true, false), "spongeforge");
         registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, true, true), "spongeforge-recommended");
         registerUpdater(TitaniumUpdater::new, "titaniummc", "titanium");
-        registerUpdater(PrismarineUpdater::new, "prismarine");
-        registerUpdater(PetalUpdater::new, "petal");
     }
 
     private final String project;
