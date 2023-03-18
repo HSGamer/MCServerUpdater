@@ -15,6 +15,7 @@ public interface LocalChecksum extends SimpleChecksum {
     default void setChecksum(File file, String version, String build) throws Exception {
         if (this instanceof Updater) {
             ((Updater) this).getUpdateBuilder().checksumConsumer().accept(getChecksum(version, build));
+            return;
         }
         throw new UnsupportedOperationException("This is not an updater");
     }
