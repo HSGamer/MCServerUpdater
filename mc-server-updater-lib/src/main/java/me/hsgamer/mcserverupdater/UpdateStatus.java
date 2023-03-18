@@ -40,14 +40,18 @@ public final class UpdateStatus {
 
     private final boolean isSuccessStatus;
     private final Throwable throwable;
+    private final String message;
 
     private UpdateStatus(boolean isSuccessStatus, Throwable throwable) {
         this.isSuccessStatus = isSuccessStatus;
         this.throwable = throwable;
+        this.message = throwable.getMessage();
     }
 
     private UpdateStatus(boolean isSuccessStatus, String message) {
-        this(isSuccessStatus, new Exception(message));
+        this.isSuccessStatus = isSuccessStatus;
+        this.throwable = null;
+        this.message = message;
     }
 
     /**
@@ -84,7 +88,9 @@ public final class UpdateStatus {
      * @return the message, or null if there is no error
      */
     public String getMessage() {
-        if (throwable == null) return null;
-        return throwable.getMessage();
+        if (message == null) {
+            return "";
+        }
+        return message;
     }
 }
