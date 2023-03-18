@@ -85,7 +85,7 @@ public final class UpdateStatus {
     /**
      * Get the message
      *
-     * @return the message, or null if there is no error
+     * @return the message
      */
     public String getMessage() {
         if (message == null) {
