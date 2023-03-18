@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Objects;
 
 public class SpigotUpdater implements Updater {
     private final UpdateBuilder updateBuilder;
@@ -46,13 +45,16 @@ public class SpigotUpdater implements Updater {
         if (!runBuildTools(buildTools, outputDir, version)) {
             return false;
         }
-        for (File outputFile : Objects.requireNonNull(outputDir.listFiles())) {
-            String name = outputFile.getName();
-            if (name.startsWith("spigot-") && name.endsWith(".jar")) {
-                updateBuilder.debug("Copying " + name + " to " + file.getName());
-                Files.copy(outputFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                Files.delete(outputFile.toPath());
-                break;
+        File[] outputFiles = outputDir.listFiles();
+        if (outputFiles != null) {
+            for (File outputFile : outputFiles) {
+                String name = outputFile.getName();
+                if (name.startsWith("spigot-") && name.endsWith(".jar")) {
+                    updateBuilder.debug("Copying " + name + " to " + file.getName());
+                    Files.copy(outputFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.delete(outputFile.toPath());
+                    break;
+                }
             }
         }
         return true;
