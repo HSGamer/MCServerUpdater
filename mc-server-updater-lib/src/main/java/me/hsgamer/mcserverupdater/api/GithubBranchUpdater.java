@@ -9,12 +9,15 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStreamUpdater {
     private final String refLatestCommitUrl;
     private final String downloadUrl;
     private final String filesUrl;
+    private final Map<String, String> buildCache = new HashMap<>();
 
     protected GithubBranchUpdater(String repo) {
         String apiUrl = "https://api.github.com/repos/" + repo + "/";
@@ -27,7 +30,27 @@ public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStre
 
     public abstract Pattern getFilePattern(String version, String build);
 
-    public String getFile(String version, String build) {
+    private String getBuild(String version) {
+        if (buildCache.containsKey(version)) {
+            return buildCache.get(version);
+        }
+        String url = String.format(refLatestCommitUrl, getBranch(version));
+        getUpdateBuilder().debug("Getting latest build from " + url);
+        try {
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            String sha = jsonObject.getString("sha");
+            getUpdateBuilder().debug("Found latest build: " + sha);
+            buildCache.put(version, sha);
+            return sha;
+        } catch (IOException e) {
+            getUpdateBuilder().debug(e);
+            return null;
+        }
+    }
+
+    private String getFile(String version, String build) {
         String url = String.format(filesUrl, build);
         getUpdateBuilder().debug("Getting files from " + url);
         try {
@@ -52,33 +75,17 @@ public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStre
     }
 
     @Override
-    public String getFileUrl(String version, String build) {
+    public String getChecksum(String version) {
+        return getBuild(version);
+    }
+
+    @Override
+    public String getFileUrl(String version) {
+        String build = getBuild(version);
         String file = getFile(version, build);
         if (file == null) {
             return null;
         }
         return String.format(downloadUrl, build, file);
-    }
-
-    @Override
-    public String getLatestBuild(String version) {
-        String url = String.format(refLatestCommitUrl, getBranch(version));
-        getUpdateBuilder().debug("Getting latest build from " + url);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
-            InputStream inputStream = connection.getInputStream();
-            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-            String sha = jsonObject.getString("sha");
-            getUpdateBuilder().debug("Found latest build: " + sha);
-            return sha;
-        } catch (IOException e) {
-            getUpdateBuilder().debug(e);
-            return null;
-        }
-    }
-
-    @Override
-    public String getChecksum(String version, String build) {
-        return build;
     }
 }
