@@ -40,7 +40,6 @@ public final class MCServerUpdater {
         OptionSpec<Void> projects = parser.accepts("projects", "Get the list of projects").forHelp();
         OptionSpec<String> project = parser.accepts("project", "The project to download").withOptionalArg().ofType(String.class).defaultsTo("paper");
         OptionSpec<String> version = parser.accepts("version", "The project version").withOptionalArg().ofType(String.class).defaultsTo("default");
-        OptionSpec<String> build = parser.accepts("build", "The build of the project to download").withOptionalArg().ofType(String.class).defaultsTo("latest");
         OptionSpec<String> output = parser.accepts("output", "The output file path").withOptionalArg().ofType(String.class).defaultsTo("server.jar");
         OptionSpec<String> checksumFile = parser.accepts("checksum", "The checksum file path").withOptionalArg().ofType(String.class).defaultsTo("checksum.txt");
         OptionSpec<String> workingDirectory = parser.accepts("working-directory", "The working directory").withOptionalArg().ofType(String.class).defaultsTo(".");
@@ -64,14 +63,12 @@ public final class MCServerUpdater {
         }
         String projectName = options.valueOf(project);
         String versionName = options.valueOf(version);
-        String buildName = options.valueOf(build);
         String outputName = options.valueOf(output);
         String checksumFileName = options.valueOf(checksumFile);
         String workingDirectoryName = options.valueOf(workingDirectory);
 
         UpdateBuilder builder = UpdateBuilder.updateProject(projectName)
                 .version(versionName)
-                .build(buildName)
                 .workingDirectory(workingDirectoryName)
                 .outputFile(outputName)
                 .checksumFile(checksumFileName)
