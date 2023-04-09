@@ -56,7 +56,11 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
 
     @Override
     public InputStream getInputStream(String version) {
-        String url = getArtifactUrl(version);
+        String build = getBuild(version);
+        if (build == null) {
+            return null;
+        }
+        String url = getArtifactUrl(version, build);
         getUpdateBuilder().debug("Downloading " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
@@ -81,8 +85,7 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
         return builder.toString();
     }
 
-    private String getArtifactUrl(String version) {
-        String build = getBuild(version);
+    private String getArtifactUrl(String version, String build) {
         Pattern artifactRegex = getArtifactRegex(version, build);
         String jobUrl = getJobUrl(version);
         String artifactListUrl = jobUrl + build + "/api/json?tree=artifacts[fileName,relativePath]";

@@ -12,13 +12,16 @@ import org.json.JSONTokener;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, LatestBuild {
+public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String artifactUrl;
     private final String versionUrl;
     private final String buildUrl;
     private final boolean isRecommended;
+    private final Map<String, String> buildCache = new HashMap<>();
 
     public SpongeUpdater(UpdateBuilder updateBuilder, boolean isForge, boolean isRecommended) {
         this.updateBuilder = updateBuilder;
@@ -27,6 +30,31 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
         this.artifactUrl = baseUrl + (isForge ? "spongeforge" : "spongevanilla");
         versionUrl = artifactUrl + "/versions";
         buildUrl = versionUrl + "/%s";
+    }
+
+    private String getBuild(String version) {
+        if (buildCache.containsKey(version)) {
+            return buildCache.get(version);
+        }
+
+        String url = getQueryReadyFetchUrl(versionUrl) + "&limit=1&tags=,minecraft:" + version;
+        updateBuilder.debug("Get latest build from " + url);
+        try {
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            JSONObject artifacts = jsonObject.getJSONObject("artifacts");
+            String[] builds = JSONObject.getNames(artifacts);
+            if (builds == null || builds.length == 0) {
+                return null;
+            }
+            String build = builds[0];
+            buildCache.put(version, build);
+            return build;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private String getQueryReadyFetchUrl(String url) {
@@ -63,7 +91,12 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
     }
 
     @Override
-    public InputStream getInputStream(String version, String build) {
+    public InputStream getInputStream(String version) {
+        String build = getBuild(version);
+        if (build == null) {
+            return null;
+        }
+
         try {
             JSONObject jarInfo = getJarInfo(build);
             if (jarInfo == null) {
@@ -80,27 +113,12 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum, La
     }
 
     @Override
-    public String getLatestBuild(String version) {
-        String url = getQueryReadyFetchUrl(versionUrl) + "&limit=1&tags=,minecraft:" + version;
-        updateBuilder.debug("Get latest build from " + url);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
-            InputStream inputStream = connection.getInputStream();
-            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-            JSONObject artifacts = jsonObject.getJSONObject("artifacts");
-            String[] builds = JSONObject.getNames(artifacts);
-            if (builds == null || builds.length == 0) {
-                return null;
-            }
-            return builds[0];
-        } catch (Exception e) {
-            e.printStackTrace();
+    public String getChecksum(String version) {
+        String build = getBuild(version);
+        if (build == null) {
             return null;
         }
-    }
 
-    @Override
-    public String getChecksum(String version, String build) {
         try {
             JSONObject jarInfo = getJarInfo(build);
             if (jarInfo == null) {

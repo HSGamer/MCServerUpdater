@@ -11,8 +11,10 @@ import org.json.JSONTokener;
 
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
-public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestBuild {
+public class FabricUpdater implements InputStreamUpdater, LocalChecksum {
     private static final String BASE_URL = "https://meta.fabricmc.net/v2/versions";
     private static final String GAME_URL = BASE_URL + "/game";
     private static final String LOADER_URL = BASE_URL + "/loader";
@@ -20,10 +22,31 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
     private static final String INSTALLER_URL = BASE_URL + "/installer";
     private final UpdateBuilder updateBuilder;
     private final boolean isStable;
+    private final Map<String, String> buildCache = new HashMap<>();
 
     public FabricUpdater(UpdateBuilder updateBuilder, boolean isStable) {
         this.updateBuilder = updateBuilder;
         this.isStable = isStable;
+    }
+
+    private String getBuild(String version) {
+        if (buildCache.containsKey(version)) {
+            return buildCache.get(version);
+        }
+
+        String loaderVersion = getLatestLoaderVersion();
+        updateBuilder.debug("Latest loader version: " + loaderVersion);
+        if (loaderVersion == null) {
+            return null;
+        }
+        String installerVersion = getLatestInstallerVersion();
+        updateBuilder.debug("Latest installer version: " + installerVersion);
+        if (installerVersion == null) {
+            return null;
+        }
+        String build = loaderVersion + ";" + installerVersion;
+        buildCache.put(version, build);
+        return build;
     }
 
     private String getLatestVersion(String url) {
@@ -63,7 +86,12 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
     }
 
     @Override
-    public InputStream getInputStream(String version, String build) {
+    public InputStream getInputStream(String version) {
+        String build = getBuild(version);
+        if (build == null) {
+            return null;
+        }
+
         String[] split = build.split(";");
         if (split.length != 2) {
             return null;
@@ -82,23 +110,8 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum, LatestB
     }
 
     @Override
-    public String getLatestBuild(String version) {
-        String loaderVersion = getLatestLoaderVersion();
-        updateBuilder.debug("Latest loader version: " + loaderVersion);
-        if (loaderVersion == null) {
-            return null;
-        }
-        String installerVersion = getLatestInstallerVersion();
-        updateBuilder.debug("Latest installer version: " + installerVersion);
-        if (installerVersion == null) {
-            return null;
-        }
-        return loaderVersion + ";" + installerVersion;
-    }
-
-    @Override
-    public String getChecksum(String version, String build) {
-        return "fabric-" + version + "-" + build;
+    public String getChecksum(String version) {
+        return "fabric-" + version + "-" + getBuild(version);
     }
 
     @Override

@@ -13,13 +13,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 
-public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, LatestBuild {
+public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String projectUrl;
     private final String versionUrl;
     private final String buildUrl;
     private final String downloadUrl;
+    private final Map<String, String> buildCache = new HashMap<>();
 
     public PaperUpdater(UpdateBuilder updateBuilder, String project) {
         this.updateBuilder = updateBuilder;
@@ -27,6 +30,27 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
         versionUrl = projectUrl + "versions/%s/";
         buildUrl = versionUrl + "builds/%s/";
         downloadUrl = buildUrl + "downloads/%s";
+    }
+
+    private String getBuild(String version) {
+        if (buildCache.containsKey(version)) {
+            return buildCache.get(version);
+        }
+
+        String formattedUrl = String.format(versionUrl, version);
+        updateBuilder.debug("Getting latest build from " + formattedUrl);
+        try {
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            JSONArray builds = jsonObject.getJSONArray("builds");
+            String build = Integer.toString(builds.getInt(builds.length() - 1));
+            buildCache.put(version, build);
+            return build;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private JSONObject getDownload(String version, String build) throws IOException {
@@ -40,7 +64,12 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
     }
 
     @Override
-    public String getChecksum(String version, String build) {
+    public String getChecksum(String version) {
+        String build = getBuild(version);
+        if (build == null) {
+            return null;
+        }
+
         try {
             JSONObject application = getDownload(version, build);
             return application.getString("sha256");
@@ -56,7 +85,12 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
     }
 
     @Override
-    public InputStream getInputStream(String version, String build) {
+    public InputStream getInputStream(String version) {
+        String build = getBuild(version);
+        if (build == null) {
+            return null;
+        }
+
         String fileName;
         try {
             JSONObject application = getDownload(version, build);
@@ -70,22 +104,6 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum, Lat
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
             return connection.getInputStream();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public String getLatestBuild(String version) {
-        String formattedUrl = String.format(versionUrl, version);
-        updateBuilder.debug("Getting latest build from " + formattedUrl);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
-            InputStream inputStream = connection.getInputStream();
-            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-            JSONArray builds = jsonObject.getJSONArray("builds");
-            return Integer.toString(builds.getInt(builds.length() - 1));
         } catch (Exception e) {
             e.printStackTrace();
             return null;

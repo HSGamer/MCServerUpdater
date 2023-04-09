@@ -82,6 +82,9 @@ public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStre
     @Override
     public String getFileUrl(String version) {
         String build = getBuild(version);
+        if (build == null) {
+            return null;
+        }
         String file = getFile(version, build);
         if (file == null) {
             return null;

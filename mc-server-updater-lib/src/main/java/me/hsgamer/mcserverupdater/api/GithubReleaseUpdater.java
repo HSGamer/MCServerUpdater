@@ -73,6 +73,9 @@ public abstract class GithubReleaseUpdater implements LocalChecksum, UrlInputStr
     @Override
     public String getFileUrl(String version) {
         String build = getBuild(version);
+        if (build == null) {
+            return null;
+        }
         String assetUrl = String.format(releaseAssetUrl, build);
         getUpdateBuilder().debug("Getting asset URL from " + assetUrl);
         try {

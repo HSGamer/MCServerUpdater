@@ -35,7 +35,7 @@ public class SpigotUpdater implements Updater {
     }
 
     @Override
-    public boolean update(File file, String version, String build) throws Exception {
+    public boolean update(File file, String version) throws Exception {
         File buildTools = downloadBuildTools();
         if (buildTools == null) {
             return false;
