@@ -43,7 +43,6 @@ public final class UpdateBuilder {
 
     private final String project;
     private String version = "default";
-    private String build = "latest";
     private File outputFile = new File("server.jar");
     private File workingDirectory = new File(".");
     private boolean checkOnly = false;
@@ -96,17 +95,6 @@ public final class UpdateBuilder {
      */
     public UpdateBuilder version(String version) {
         this.version = version;
-        return this;
-    }
-
-    /**
-     * Set the build
-     *
-     * @param build the build
-     * @return the update process
-     */
-    public UpdateBuilder build(String build) {
-        this.build = build;
         return this;
     }
 
@@ -337,18 +325,11 @@ public final class UpdateBuilder {
                 return UpdateStatus.NO_VERSION;
             }
 
-            if ("latest".equalsIgnoreCase(build) && update instanceof LatestBuild) {
-                build = ((LatestBuild) update).getLatestBuild(version);
-            }
-            if (build == null) {
-                return UpdateStatus.NO_BUILD;
-            }
-
             try {
                 if (outputFile.exists()) {
                     if (update instanceof Checksum) {
                         Checksum checksum = (Checksum) update;
-                        if (checksum.checksum(outputFile, version, build)) {
+                        if (checksum.checksum(outputFile, version)) {
                             return UpdateStatus.UP_TO_DATE;
                         } else if (checkOnly) {
                             return UpdateStatus.OUT_OF_DATE;
@@ -362,9 +343,9 @@ public final class UpdateBuilder {
             }
 
             try {
-                if (update.update(outputFile, version, build)) {
+                if (update.update(outputFile, version)) {
                     if (update instanceof Checksum) {
-                        ((Checksum) update).setChecksum(outputFile, version, build);
+                        ((Checksum) update).setChecksum(outputFile, version);
                     }
                     return UpdateStatus.SUCCESS;
                 } else {

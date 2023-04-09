@@ -13,10 +13,6 @@ public final class UpdateStatus {
      */
     public static final UpdateStatus NO_VERSION = new UpdateStatus(false, "No version found");
     /**
-     * The build is not found
-     */
-    public static final UpdateStatus NO_BUILD = new UpdateStatus(false, "No build found");
-    /**
      * Failed to create the output file
      */
     public static final UpdateStatus FILE_FAILED = new UpdateStatus(false, "File failed to create");
