@@ -12,11 +12,10 @@ from [here](https://github.com/HSGamer/MCServerUpdater/releases)
 ```
 Option                           Description
 ------                           -----------
---build <String>                 The build of the project to download (default: latest)
 --help                           Get the list of arguments
+--projects                       Get the list of projects
 --output <String>                The output file path (default: server.jar)
 --project <String>               The project to download (default: paper)
---projects                       Get the list of projects
 --version <String>               The project version (default: default)
 ```
 
@@ -30,11 +29,8 @@ Option                           Description
 * Download the latest build of Paper and save it to the file `server.jar`
     * `java -jar MCServerUpdater.jar --output server.jar`
     * `java -jar MCServerUpdater.jar --project paper --output server.jar`
-* Download the latest build of Airplane 1.17.1
-    * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1`
-    * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1 --build latest`
-* Download the #106 build of Airplane 1.17.1
-    * `java -jar MCServerUpdater.jar --project airplane --version 1.17.1 --build 106`
+* Download the latest build of Paper 1.17.1
+    * `java -jar MCServerUpdater.jar --project paper --version 1.17.1`
 
 ## Use this in your projects
 
@@ -84,7 +80,6 @@ class Main {
   public static void main(String[] args) {
     UpdateBuilder builder = UpdateBuilder.updateProject("paper")
             .version("1.17.1")
-            .build("latest")
             .outputFile("server.jar");
 
     // Execute the update process asynchronously
