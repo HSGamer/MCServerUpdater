@@ -9,6 +9,8 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -18,6 +20,7 @@ public abstract class GithubReleaseUpdater implements LocalChecksum, UrlInputStr
     private final String releasesUrl;
     private final String releaseByTagUrl;
     private final String releaseAssetUrl;
+    private final Map<String, String> buildCache = new HashMap<>();
 
     protected GithubReleaseUpdater(String repo, boolean versionAsTag) {
         this.repo = repo;
@@ -30,32 +33,11 @@ public abstract class GithubReleaseUpdater implements LocalChecksum, UrlInputStr
 
     public abstract Pattern getArtifactPattern(String version, String build);
 
-    @Override
-    public String getFileUrl(String version, String build) {
-        String assetUrl = String.format(releaseAssetUrl, build);
-        getUpdateBuilder().debug("Getting asset URL from " + assetUrl);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(assetUrl));
-            InputStream inputStream = connection.getInputStream();
-            JSONArray array = new JSONArray(new JSONTokener(inputStream));
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject object = array.getJSONObject(i);
-                String name = object.getString("name");
-                if (getArtifactPattern(version, build).matcher(name).matches()) {
-                    String url = object.getString("browser_download_url");
-                    getUpdateBuilder().debug("Found asset URL: " + url);
-                    return url;
-                }
-            }
-            return null;
-        } catch (IOException e) {
-            getUpdateBuilder().debug(e);
-            return null;
+    private String getBuild(String version) {
+        if (buildCache.containsKey(version)) {
+            return buildCache.get(version);
         }
-    }
 
-    @Override
-    public String getLatestBuild(String version) {
         JSONObject object = null;
         if (versionAsTag) {
             String tagToIdUrl = String.format(releaseByTagUrl, version);
@@ -84,11 +66,37 @@ public abstract class GithubReleaseUpdater implements LocalChecksum, UrlInputStr
         }
         String id = Objects.toString(object.get("id"), null);
         getUpdateBuilder().debug("Found release ID: " + id);
+        buildCache.put(version, id);
         return id;
     }
 
     @Override
-    public String getChecksum(String version, String build) {
-        return repo + "||" + build;
+    public String getFileUrl(String version) {
+        String build = getBuild(version);
+        String assetUrl = String.format(releaseAssetUrl, build);
+        getUpdateBuilder().debug("Getting asset URL from " + assetUrl);
+        try {
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(assetUrl));
+            InputStream inputStream = connection.getInputStream();
+            JSONArray array = new JSONArray(new JSONTokener(inputStream));
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject object = array.getJSONObject(i);
+                String name = object.getString("name");
+                if (getArtifactPattern(version, build).matcher(name).matches()) {
+                    String url = object.getString("browser_download_url");
+                    getUpdateBuilder().debug("Found asset URL: " + url);
+                    return url;
+                }
+            }
+            return null;
+        } catch (IOException e) {
+            getUpdateBuilder().debug(e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getChecksum(String version) {
+        return repo + "||" + getBuild(version);
     }
 }
