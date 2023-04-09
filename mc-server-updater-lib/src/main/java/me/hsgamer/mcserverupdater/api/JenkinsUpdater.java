@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
 
-public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdater, LatestBuild {
+public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdater {
     private final String jenkinsUrl;
 
     protected JenkinsUpdater(String jenkinsUrl) {

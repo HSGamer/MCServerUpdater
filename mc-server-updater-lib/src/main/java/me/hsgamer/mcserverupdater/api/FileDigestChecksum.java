@@ -18,7 +18,7 @@ public interface FileDigestChecksum extends SimpleChecksum {
     }
 
     @Override
-    default void setChecksum(File file, String version, String build) throws Exception {
+    default void setChecksum(File file, String version) throws Exception {
         // IGNORED
     }
 }

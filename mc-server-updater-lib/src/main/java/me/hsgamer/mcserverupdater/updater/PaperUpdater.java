@@ -5,7 +5,6 @@ import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
-import me.hsgamer.mcserverupdater.api.LatestBuild;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;

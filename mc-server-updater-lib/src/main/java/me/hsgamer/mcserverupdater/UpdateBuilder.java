@@ -2,7 +2,6 @@ package me.hsgamer.mcserverupdater;
 
 import me.hsgamer.hscore.collections.map.CaseInsensitiveStringHashMap;
 import me.hsgamer.mcserverupdater.api.Checksum;
-import me.hsgamer.mcserverupdater.api.LatestBuild;
 import me.hsgamer.mcserverupdater.api.Updater;
 import me.hsgamer.mcserverupdater.updater.*;
 import me.hsgamer.mcserverupdater.util.Utils;

@@ -5,7 +5,7 @@ import me.hsgamer.mcserverupdater.UpdateBuilder;
 import java.io.File;
 
 public interface Updater {
-    boolean update(File file, String version, String build) throws Exception;
+    boolean update(File file, String version) throws Exception;
 
     String getDefaultVersion();
 
