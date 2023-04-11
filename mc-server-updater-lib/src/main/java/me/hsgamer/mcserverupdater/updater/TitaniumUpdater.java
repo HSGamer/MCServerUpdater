@@ -1,30 +1,22 @@
 package me.hsgamer.mcserverupdater.updater;
 
-import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 
 import java.util.regex.Pattern;
 
 public class TitaniumUpdater extends GithubReleaseUpdater {
-    private final UpdateBuilder updateBuilder;
-
-    public TitaniumUpdater(UpdateBuilder updateBuilder) {
-        super("TitaniumMC/Titanium", false);
-        this.updateBuilder = updateBuilder;
+    public TitaniumUpdater(VersionQuery versionQuery) {
+        super(versionQuery, "TitaniumMC/Titanium", false);
     }
 
     @Override
-    public UpdateBuilder getUpdateBuilder() {
-        return updateBuilder;
-    }
-
-    @Override
-    public Pattern getArtifactPattern(String version, String build) {
+    public Pattern getArtifactPattern() {
         return Pattern.compile(".*\\.jar");
     }
 
     @Override
     public String getDefaultVersion() {
-        return "";
+        return "1.8.8";
     }
 }

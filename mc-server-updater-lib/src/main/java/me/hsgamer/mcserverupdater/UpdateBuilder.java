@@ -5,6 +5,7 @@ import me.hsgamer.mcserverupdater.api.Checksum;
 import me.hsgamer.mcserverupdater.api.Updater;
 import me.hsgamer.mcserverupdater.updater.*;
 import me.hsgamer.mcserverupdater.util.Utils;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,24 +21,24 @@ import java.util.function.Function;
  * Where to create the update process
  */
 public final class UpdateBuilder {
-    private static final Map<String, Function<UpdateBuilder, Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
+    private static final Map<String, Function<VersionQuery, Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
 
     static {
-        registerUpdater(updateBuilder -> new PaperUpdater(updateBuilder, "paper"), "paper", "papermc", "paperspigot");
-        registerUpdater(updateBuilder -> new PaperUpdater(updateBuilder, "travertine"), "travertine");
-        registerUpdater(updateBuilder -> new PaperUpdater(updateBuilder, "waterfall"), "waterfall");
-        registerUpdater(updateBuilder -> new PaperUpdater(updateBuilder, "velocity"), "velocity");
+        registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "paper"), "paper", "papermc", "paperspigot");
+        registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "travertine"), "travertine");
+        registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "waterfall"), "waterfall");
+        registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "velocity"), "velocity");
         registerUpdater(PurpurUpdater::new, "purpur", "purpurmc");
         registerUpdater(BungeeCordUpdater::new, "bungeecord", "bungee");
         registerUpdater(SpigotUpdater::new, "spigot", "spigotmc");
         registerUpdater(PatinaUpdater::new, "patina", "patinamc");
         registerUpdater(PufferfishUpdater::new, "pufferfish");
-        registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, true), "fabricmc", "fabric");
-        registerUpdater(updateBuilder -> new FabricUpdater(updateBuilder, false), "fabricmc-dev", "fabric-dev");
-        registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, false, false), "spongevanilla");
-        registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, false, true), "spongevanilla-recommended");
-        registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, true, false), "spongeforge");
-        registerUpdater(updateBuilder -> new SpongeUpdater(updateBuilder, true, true), "spongeforge-recommended");
+        registerUpdater(versionQuery -> new FabricUpdater(versionQuery, true), "fabricmc", "fabric");
+        registerUpdater(versionQuery -> new FabricUpdater(versionQuery, false), "fabricmc-dev", "fabric-dev");
+        registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, false, false), "spongevanilla");
+        registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, false, true), "spongevanilla-recommended");
+        registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, false), "spongeforge");
+        registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, true), "spongeforge-recommended");
         registerUpdater(TitaniumUpdater::new, "titaniummc", "titanium");
         registerUpdater(updateBuilder -> new ForgeUpdater(updateBuilder, false), "forge", "minecraftforge");
         registerUpdater(updateBuilder -> new ForgeUpdater(updateBuilder, true), "forge-recommended", "minecraftforge-recommended");
@@ -64,7 +65,7 @@ public final class UpdateBuilder {
      * @param updater the updater
      * @param names   the names
      */
-    public static void registerUpdater(Function<UpdateBuilder, Updater> updater, String... names) {
+    public static void registerUpdater(Function<VersionQuery, Updater> updater, String... names) {
         for (String name : names) {
             UPDATERS.put(name, updater);
         }
@@ -316,22 +317,17 @@ public final class UpdateBuilder {
      */
     public CompletableFuture<UpdateStatus> executeAsync() {
         return CompletableFuture.supplyAsync(() -> {
-            Updater update = Optional.ofNullable(UPDATERS.get(project)).map(f -> f.apply(this)).orElse(null);
+            VersionQuery versionQuery = new VersionQuery(version, this);
+            Updater update = Optional.ofNullable(UPDATERS.get(project)).map(f -> f.apply(versionQuery)).orElse(null);
             if (update == null) {
                 return UpdateStatus.NO_PROJECT;
-            }
-            if ("default".equalsIgnoreCase(version) || "latest".equalsIgnoreCase(version)) {
-                version = update.getDefaultVersion();
-            }
-            if (version == null) {
-                return UpdateStatus.NO_VERSION;
             }
 
             try {
                 if (outputFile.exists()) {
                     if (update instanceof Checksum) {
                         Checksum checksum = (Checksum) update;
-                        if (checksum.checksum(outputFile, version)) {
+                        if (checksum.checksum(outputFile)) {
                             return UpdateStatus.UP_TO_DATE;
                         } else if (checkOnly) {
                             return UpdateStatus.OUT_OF_DATE;
@@ -345,9 +341,9 @@ public final class UpdateBuilder {
             }
 
             try {
-                if (update.update(outputFile, version)) {
+                if (update.update(outputFile)) {
                     if (update instanceof Checksum) {
-                        ((Checksum) update).setChecksum(outputFile, version);
+                        ((Checksum) update).setChecksum(outputFile);
                     }
                     return UpdateStatus.SUCCESS;
                 } else {

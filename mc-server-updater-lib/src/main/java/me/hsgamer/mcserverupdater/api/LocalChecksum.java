@@ -12,9 +12,9 @@ public interface LocalChecksum extends SimpleChecksum {
     }
 
     @Override
-    default void setChecksum(File file, String version) throws Exception {
+    default void setChecksum(File file) throws Exception {
         if (this instanceof Updater) {
-            ((Updater) this).getUpdateBuilder().checksumConsumer().accept(getChecksum(version));
+            ((Updater) this).getUpdateBuilder().checksumConsumer().accept(getChecksum());
             return;
         }
         throw new UnsupportedOperationException("This is not an updater");

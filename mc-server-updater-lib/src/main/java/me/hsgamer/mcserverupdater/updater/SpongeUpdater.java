@@ -5,6 +5,7 @@ import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -12,31 +13,42 @@ import org.json.JSONTokener;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
+    private final String version;
+    private final String build;
     private final String artifactUrl;
     private final String versionUrl;
     private final String buildUrl;
     private final boolean isRecommended;
-    private final Map<String, String> buildCache = new HashMap<>();
 
-    public SpongeUpdater(UpdateBuilder updateBuilder, boolean isForge, boolean isRecommended) {
-        this.updateBuilder = updateBuilder;
+    public SpongeUpdater(VersionQuery versionQuery, boolean isForge, boolean isRecommended) {
+        this.updateBuilder = versionQuery.updateBuilder;
         this.isRecommended = isRecommended;
         String baseUrl = "https://dl-api-new.spongepowered.org/api/v2/groups/org.spongepowered/artifacts/";
         this.artifactUrl = baseUrl + (isForge ? "spongeforge" : "spongevanilla");
         versionUrl = artifactUrl + "/versions";
         buildUrl = versionUrl + "/%s";
+        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        this.build = getBuild();
     }
 
-    private String getBuild(String version) {
-        if (buildCache.containsKey(version)) {
-            return buildCache.get(version);
+    private String getDefaultVersion() {
+        updateBuilder.debug("Get default version from " + artifactUrl);
+        try {
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactUrl));
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            JSONObject tagsObject = jsonObject.getJSONObject("tags");
+            JSONArray versions = tagsObject.getJSONArray("minecraft");
+            return versions.getString(0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+    }
 
+    private String getBuild() {
         String url = getQueryReadyFetchUrl(versionUrl) + "&limit=1&tags=,minecraft:" + version;
         updateBuilder.debug("Get latest build from " + url);
         try {
@@ -48,12 +60,9 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
             if (builds == null || builds.length == 0) {
                 return null;
             }
-            String build = builds[0];
-            buildCache.put(version, build);
-            return build;
+            return builds[0];
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -91,12 +100,7 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
     }
 
     @Override
-    public InputStream getInputStream(String version) {
-        String build = getBuild(version);
-        if (build == null) {
-            return null;
-        }
-
+    public InputStream getInputStream() {
         try {
             JSONObject jarInfo = getJarInfo(build);
             if (jarInfo == null) {
@@ -113,34 +117,13 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
     }
 
     @Override
-    public String getChecksum(String version) {
-        String build = getBuild(version);
-        if (build == null) {
-            return null;
-        }
-
+    public String getChecksum() {
         try {
             JSONObject jarInfo = getJarInfo(build);
             if (jarInfo == null) {
                 return null;
             }
             return jarInfo.getString("md5");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public String getDefaultVersion() {
-        updateBuilder.debug("Get default version from " + artifactUrl);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactUrl));
-            InputStream inputStream = connection.getInputStream();
-            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-            JSONObject tagsObject = jsonObject.getJSONObject("tags");
-            JSONArray versions = tagsObject.getJSONArray("minecraft");
-            return versions.getString(0);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
