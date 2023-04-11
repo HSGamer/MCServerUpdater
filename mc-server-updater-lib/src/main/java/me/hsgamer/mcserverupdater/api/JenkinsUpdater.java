@@ -2,6 +2,8 @@ package me.hsgamer.mcserverupdater.api;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -9,28 +11,29 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdater {
+    protected final UpdateBuilder updateBuilder;
+    protected final String version;
+    protected final String build;
     private final String jenkinsUrl;
-    private final Map<String, String> buildCache = new HashMap<>();
 
-    protected JenkinsUpdater(String jenkinsUrl) {
+    protected JenkinsUpdater(VersionQuery versionQuery, String jenkinsUrl) {
         this.jenkinsUrl = jenkinsUrl.endsWith("/") ? jenkinsUrl : jenkinsUrl + "/";
+        this.updateBuilder = versionQuery.updateBuilder;
+        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        this.build = getBuild();
     }
 
-    public abstract String[] getJob(String version);
+    public abstract String[] getJob();
 
-    public abstract Pattern getArtifactRegex(String version, String build);
+    public abstract Pattern getArtifactRegex();
 
-    private String getBuild(String version) {
-        if (buildCache.containsKey(version)) {
-            return buildCache.get(version);
-        }
+    public abstract String getDefaultVersion();
 
-        String url = getJobUrl(version);
+    private String getBuild() {
+        String url = getJobUrl();
         String api = url + "api/json";
         String treeUrl = api + "?tree=lastSuccessfulBuild[number]";
         getUpdateBuilder().debug("Getting latest build from " + treeUrl);
@@ -41,26 +44,20 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
             JSONObject build = jsonObject.getJSONObject("lastSuccessfulBuild");
             String buildNumber = Integer.toString(build.getInt("number"));
             getUpdateBuilder().debug("Latest build: " + buildNumber);
-            buildCache.put(version, buildNumber);
             return buildNumber;
         } catch (IOException e) {
-            getUpdateBuilder().debug(e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public String getChecksum(String version) {
-        return String.join("||", version, getBuild(version), String.join("_", getJob(version)), getJenkinsUrl());
+    public String getChecksum() {
+        return String.join("||", version, build, String.join("_", getJob()), getJenkinsUrl());
     }
 
     @Override
-    public InputStream getInputStream(String version) {
-        String build = getBuild(version);
-        if (build == null) {
-            return null;
-        }
-        String url = getArtifactUrl(version, build);
+    public InputStream getInputStream() {
+        String url = getArtifactUrl();
         getUpdateBuilder().debug("Downloading " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
@@ -75,8 +72,8 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
         return jenkinsUrl;
     }
 
-    private String getJobUrl(String version) {
-        String[] job = getJob(version);
+    private String getJobUrl() {
+        String[] job = getJob();
         StringBuilder builder = new StringBuilder();
         builder.append(jenkinsUrl);
         for (String s : job) {
@@ -85,9 +82,9 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
         return builder.toString();
     }
 
-    private String getArtifactUrl(String version, String build) {
-        Pattern artifactRegex = getArtifactRegex(version, build);
-        String jobUrl = getJobUrl(version);
+    private String getArtifactUrl() {
+        Pattern artifactRegex = getArtifactRegex();
+        String jobUrl = getJobUrl();
         String artifactListUrl = jobUrl + build + "/api/json?tree=artifacts[fileName,relativePath]";
         String artifact = "INVALID";
         getUpdateBuilder().debug("Getting artifact from " + artifactListUrl);
@@ -111,5 +108,10 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
         String formattedArtifactUrl = String.format(artifactUrl, build, artifact);
         getUpdateBuilder().debug("Artifact URL: " + formattedArtifactUrl);
         return formattedArtifactUrl;
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }

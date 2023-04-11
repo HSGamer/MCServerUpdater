@@ -7,11 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 public interface InputStreamUpdater extends Updater {
-    InputStream getInputStream(String version);
+    InputStream getInputStream();
 
     @Override
-    default boolean update(File file, String version) throws IOException {
-        try (InputStream inputStream = getInputStream(version)) {
+    default boolean update(File file) throws IOException {
+        try (InputStream inputStream = getInputStream()) {
             if (inputStream == null) {
                 return false;
             }

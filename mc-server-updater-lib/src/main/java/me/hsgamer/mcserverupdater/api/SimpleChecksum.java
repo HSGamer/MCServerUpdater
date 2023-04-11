@@ -3,13 +3,13 @@ package me.hsgamer.mcserverupdater.api;
 import java.io.File;
 
 public interface SimpleChecksum extends Checksum {
-    String getChecksum(String version);
+    String getChecksum();
 
     String getCurrentChecksum(File file) throws Exception;
 
     @Override
-    default boolean checksum(File file, String version) throws Exception {
-        String checksum = getChecksum(version);
+    default boolean checksum(File file) throws Exception {
+        String checksum = getChecksum();
         if (this instanceof Updater) {
             ((Updater) this).getUpdateBuilder().debug("Checksum: " + checksum);
         }

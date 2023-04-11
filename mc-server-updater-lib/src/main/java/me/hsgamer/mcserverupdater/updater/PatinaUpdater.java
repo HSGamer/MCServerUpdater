@@ -1,35 +1,27 @@
 package me.hsgamer.mcserverupdater.updater;
 
-import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.GithubBranchUpdater;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 
 import java.util.regex.Pattern;
 
 public class PatinaUpdater extends GithubBranchUpdater {
-    private final UpdateBuilder updateBuilder;
-
-    public PatinaUpdater(UpdateBuilder updateBuilder) {
-        super("PatinaMC/Patina");
-        this.updateBuilder = updateBuilder;
+    public PatinaUpdater(VersionQuery versionQuery) {
+        super(versionQuery, "PatinaMC/Patina");
     }
 
     @Override
-    public String getBranch(String version) {
+    public String getBranch() {
         return "releases/" + version;
     }
 
     @Override
-    public Pattern getFilePattern(String version, String build) {
+    public Pattern getFilePattern() {
         return Pattern.compile(".*\\.jar");
     }
 
     @Override
     public String getDefaultVersion() {
         return "1.17.1";
-    }
-
-    @Override
-    public UpdateBuilder getUpdateBuilder() {
-        return updateBuilder;
     }
 }

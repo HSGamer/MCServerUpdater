@@ -9,10 +9,6 @@ public final class UpdateStatus {
      */
     public static final UpdateStatus NO_PROJECT = new UpdateStatus(false, "No project found");
     /**
-     * The version is not found
-     */
-    public static final UpdateStatus NO_VERSION = new UpdateStatus(false, "No version found");
-    /**
      * Failed to create the output file
      */
     public static final UpdateStatus FILE_FAILED = new UpdateStatus(false, "File failed to create");

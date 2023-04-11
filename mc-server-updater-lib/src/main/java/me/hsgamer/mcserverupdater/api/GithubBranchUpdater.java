@@ -2,6 +2,8 @@ package me.hsgamer.mcserverupdater.api;
 
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -9,32 +11,34 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStreamUpdater {
+    protected final UpdateBuilder updateBuilder;
+    protected final String version;
+    protected final String build;
     private final String refLatestCommitUrl;
     private final String downloadUrl;
     private final String filesUrl;
-    private final Map<String, String> buildCache = new HashMap<>();
 
-    protected GithubBranchUpdater(String repo) {
+    protected GithubBranchUpdater(VersionQuery versionQuery, String repo) {
         String apiUrl = "https://api.github.com/repos/" + repo + "/";
         this.refLatestCommitUrl = apiUrl + "commits/heads/%s";
         this.downloadUrl = "https://github.com/" + repo + "/raw/%s/%s";
         this.filesUrl = apiUrl + "git/trees/%s?recursive=true";
+        this.updateBuilder = versionQuery.updateBuilder;
+        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        this.build = getBuild();
     }
 
-    public abstract String getBranch(String version);
+    public abstract String getBranch();
 
-    public abstract Pattern getFilePattern(String version, String build);
+    public abstract Pattern getFilePattern();
 
-    private String getBuild(String version) {
-        if (buildCache.containsKey(version)) {
-            return buildCache.get(version);
-        }
-        String url = String.format(refLatestCommitUrl, getBranch(version));
+    public abstract String getDefaultVersion();
+
+    private String getBuild() {
+        String url = String.format(refLatestCommitUrl, getBranch());
         getUpdateBuilder().debug("Getting latest build from " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
@@ -42,15 +46,13 @@ public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStre
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             String sha = jsonObject.getString("sha");
             getUpdateBuilder().debug("Found latest build: " + sha);
-            buildCache.put(version, sha);
             return sha;
         } catch (IOException e) {
-            getUpdateBuilder().debug(e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
-    private String getFile(String version, String build) {
+    private String getFile() {
         String url = String.format(filesUrl, build);
         getUpdateBuilder().debug("Getting files from " + url);
         try {
@@ -58,7 +60,7 @@ public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStre
             InputStream inputStream = connection.getInputStream();
             JSONObject object = new JSONObject(new JSONTokener(inputStream));
             JSONArray array = object.getJSONArray("tree");
-            Pattern pattern = getFilePattern(version, build);
+            Pattern pattern = getFilePattern();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject file = array.getJSONObject(i);
                 String path = file.getString("path");
@@ -75,20 +77,25 @@ public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStre
     }
 
     @Override
-    public String getChecksum(String version) {
-        return getBuild(version);
+    public String getChecksum() {
+        return getBuild();
     }
 
     @Override
-    public String getFileUrl(String version) {
-        String build = getBuild(version);
+    public String getFileUrl() {
+        String build = getBuild();
         if (build == null) {
             return null;
         }
-        String file = getFile(version, build);
+        String file = getFile();
         if (file == null) {
             return null;
         }
         return String.format(downloadUrl, build, file);
+    }
+
+    @Override
+    public UpdateBuilder getUpdateBuilder() {
+        return updateBuilder;
     }
 }

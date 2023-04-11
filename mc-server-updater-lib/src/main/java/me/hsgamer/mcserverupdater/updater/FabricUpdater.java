@@ -5,14 +5,13 @@ import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.LocalChecksum;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class FabricUpdater implements InputStreamUpdater, LocalChecksum {
     private static final String BASE_URL = "https://meta.fabricmc.net/v2/versions";
@@ -21,32 +20,29 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum {
     private static final String DOWNLOAD_URL = LOADER_URL + "/%s/%s/%s/server/jar";
     private static final String INSTALLER_URL = BASE_URL + "/installer";
     private final UpdateBuilder updateBuilder;
+    private final String version;
+    private final String build;
     private final boolean isStable;
-    private final Map<String, String> buildCache = new HashMap<>();
 
-    public FabricUpdater(UpdateBuilder updateBuilder, boolean isStable) {
-        this.updateBuilder = updateBuilder;
+    public FabricUpdater(VersionQuery versionQuery, boolean isStable) {
         this.isStable = isStable;
+        this.updateBuilder = versionQuery.updateBuilder;
+        this.version = versionQuery.isLatest ? getLatestGameVersion() : versionQuery.version;
+        this.build = getBuild();
     }
 
-    private String getBuild(String version) {
-        if (buildCache.containsKey(version)) {
-            return buildCache.get(version);
-        }
-
+    private String getBuild() {
         String loaderVersion = getLatestLoaderVersion();
         updateBuilder.debug("Latest loader version: " + loaderVersion);
         if (loaderVersion == null) {
-            return null;
+            throw new IllegalStateException("Cannot get the latest loader version");
         }
         String installerVersion = getLatestInstallerVersion();
         updateBuilder.debug("Latest installer version: " + installerVersion);
         if (installerVersion == null) {
-            return null;
+            throw new IllegalStateException("Cannot get the latest installer version");
         }
-        String build = loaderVersion + ";" + installerVersion;
-        buildCache.put(version, build);
-        return build;
+        return loaderVersion + ";" + installerVersion;
     }
 
     private String getLatestVersion(String url) {
@@ -86,12 +82,7 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum {
     }
 
     @Override
-    public InputStream getInputStream(String version) {
-        String build = getBuild(version);
-        if (build == null) {
-            return null;
-        }
-
+    public InputStream getInputStream() {
         String[] split = build.split(";");
         if (split.length != 2) {
             return null;
@@ -110,13 +101,8 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum {
     }
 
     @Override
-    public String getChecksum(String version) {
-        return "fabric-" + version + "-" + getBuild(version);
-    }
-
-    @Override
-    public String getDefaultVersion() {
-        return getLatestGameVersion();
+    public String getChecksum() {
+        return "fabric-" + version + "-" + build;
     }
 
     @Override

@@ -1,26 +1,23 @@
 package me.hsgamer.mcserverupdater.updater;
 
-import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 
 import java.util.regex.Pattern;
 
 public class PufferfishUpdater extends JenkinsUpdater {
-    private final UpdateBuilder updateBuilder;
-
-    public PufferfishUpdater(UpdateBuilder updateBuilder) {
-        super("https://ci.pufferfish.host/");
-        this.updateBuilder = updateBuilder;
+    public PufferfishUpdater(VersionQuery versionQuery) {
+        super(versionQuery, "https://ci.pufferfish.host/");
     }
 
     @Override
-    public String[] getJob(String version) {
+    public String[] getJob() {
         Version v = Version.getVersion(version);
         return new String[]{v == null ? "INVALID" : v.job};
     }
 
     @Override
-    public Pattern getArtifactRegex(String version, String build) {
+    public Pattern getArtifactRegex() {
         Version v = Version.getVersion(version);
         return v == null ? Pattern.compile("INVALID") : v.artifactRegex;
     }
@@ -28,11 +25,6 @@ public class PufferfishUpdater extends JenkinsUpdater {
     @Override
     public String getDefaultVersion() {
         return "1.17.1";
-    }
-
-    @Override
-    public UpdateBuilder getUpdateBuilder() {
-        return updateBuilder;
     }
 
     private enum Version {

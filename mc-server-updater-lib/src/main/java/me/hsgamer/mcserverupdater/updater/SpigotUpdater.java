@@ -4,6 +4,7 @@ import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.Updater;
+import me.hsgamer.mcserverupdater.util.VersionQuery;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +15,11 @@ import java.nio.file.StandardCopyOption;
 
 public class SpigotUpdater implements Updater {
     private final UpdateBuilder updateBuilder;
+    private final String version;
 
-    public SpigotUpdater(UpdateBuilder updateBuilder) {
-        this.updateBuilder = updateBuilder;
+    public SpigotUpdater(VersionQuery versionQuery) {
+        this.updateBuilder = versionQuery.updateBuilder;
+        this.version = versionQuery.isLatest ? "latest" : versionQuery.version;
     }
 
     private File downloadBuildTools() {
@@ -35,14 +38,14 @@ public class SpigotUpdater implements Updater {
     }
 
     @Override
-    public boolean update(File file, String version) throws Exception {
+    public boolean update(File file) throws Exception {
         File buildTools = downloadBuildTools();
         if (buildTools == null) {
             return false;
         }
         File outputDir = new File(updateBuilder.workingDirectory(), "output");
         updateBuilder.debug("Running BuildTools...");
-        if (!runBuildTools(buildTools, outputDir, version)) {
+        if (!runBuildTools(buildTools, outputDir)) {
             return false;
         }
         File[] outputFiles = outputDir.listFiles();
@@ -60,7 +63,7 @@ public class SpigotUpdater implements Updater {
         return true;
     }
 
-    private boolean runBuildTools(File buildTools, File outputDir, String version) throws IOException, InterruptedException {
+    private boolean runBuildTools(File buildTools, File outputDir) throws IOException, InterruptedException {
         String javaExecutable = System.getProperty("MCServerUpdater.javaExecutable", "java");
         ProcessBuilder processBuilder = new ProcessBuilder(
                 javaExecutable,
@@ -82,11 +85,6 @@ public class SpigotUpdater implements Updater {
             updateBuilder.debug(new String(buffer, 0, length).trim());
         }
         return process.waitFor() == 0;
-    }
-
-    @Override
-    public String getDefaultVersion() {
-        return "latest";
     }
 
     @Override

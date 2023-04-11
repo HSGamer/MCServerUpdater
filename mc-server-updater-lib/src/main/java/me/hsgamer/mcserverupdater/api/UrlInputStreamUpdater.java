@@ -8,11 +8,11 @@ import java.io.InputStream;
 import java.net.URLConnection;
 
 public interface UrlInputStreamUpdater extends InputStreamUpdater {
-    String getFileUrl(String version);
+    String getFileUrl();
 
     @Override
-    default InputStream getInputStream(String version) {
-        String url = getFileUrl(version);
+    default InputStream getInputStream() {
+        String url = getFileUrl();
         getUpdateBuilder().debug("Getting input stream from " + url);
         if (url == null) {
             return null;
