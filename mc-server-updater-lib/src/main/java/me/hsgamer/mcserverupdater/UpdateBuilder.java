@@ -40,8 +40,6 @@ public final class UpdateBuilder {
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, false), "spongeforge");
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, true), "spongeforge-recommended");
         registerUpdater(TitaniumUpdater::new, "titaniummc", "titanium");
-        registerUpdater(updateBuilder -> new ForgeUpdater(updateBuilder, false), "forge", "minecraftforge");
-        registerUpdater(updateBuilder -> new ForgeUpdater(updateBuilder, true), "forge-recommended", "minecraftforge-recommended");
     }
 
     private final String project;
