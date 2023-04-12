@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
     private static final String LOADER_URL = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
     private static final String DOWNLOAD_URL = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s/forge-%1$s-universal.jar";
+    private final String downloadUrl;
     private final UpdateBuilder updateBuilder;
     private final Boolean isRecommended;
     private final String build;
@@ -37,10 +38,10 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
 
         this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         this.build = getBuild();
+        this.downloadUrl = getDownloadUrl();
     }
 
     private String getBuild() {
-        String build;
         updateBuilder.debug("Getting latest build from " + LOADER_URL);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(LOADER_URL));
@@ -53,8 +54,17 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
         }
     }
 
-    private String getDownload() {
-        return String.format(DOWNLOAD_URL, version + "-" + build);
+    private String getDownloadUrl() {
+        try {
+            String url = String.format(DOWNLOAD_URL, version + "-" + build);
+            // Check if the URL is valid
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            connection.getInputStream().close();
+            return url;
+        } catch (Exception e) {
+            // If not, use the legacy URL
+            return String.format(DOWNLOAD_URL, version + "-" + build + "-" + version);
+        }
     }
 
     public String getDefaultVersion() {
@@ -86,7 +96,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
 
     @Override
     public String getChecksum() {
-        String formattedUrl = getDownload() + ".md5";
+        String formattedUrl = downloadUrl + ".md5";
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
             InputStream inputStream = connection.getInputStream();
@@ -111,7 +121,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
 
     @Override
     public InputStream getInputStream() {
-        String formattedUrl = getDownload();
+        String formattedUrl = downloadUrl;
         updateBuilder.debug("Getting input stream from " + formattedUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
