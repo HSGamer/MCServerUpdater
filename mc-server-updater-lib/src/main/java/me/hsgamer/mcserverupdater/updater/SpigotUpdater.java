@@ -63,6 +63,11 @@ public class SpigotUpdater implements Updater {
         return true;
     }
 
+    @Override
+    public void debug(String message) {
+        updateBuilder.debug(message);
+    }
+
     private boolean runBuildTools(File buildTools, File outputDir) throws IOException, InterruptedException {
         String javaExecutable = System.getProperty("MCServerUpdater.javaExecutable", "java");
         ProcessBuilder processBuilder = new ProcessBuilder(
@@ -85,10 +90,5 @@ public class SpigotUpdater implements Updater {
             updateBuilder.debug(new String(buffer, 0, length).trim());
         }
         return process.waitFor() == 0;
-    }
-
-    @Override
-    public UpdateBuilder getUpdateBuilder() {
-        return updateBuilder;
     }
 }

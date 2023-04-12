@@ -133,7 +133,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
     }
 
     @Override
-    public UpdateBuilder getUpdateBuilder() {
-        return updateBuilder;
+    public void debug(String message) {
+        updateBuilder.debug(message);
     }
 }

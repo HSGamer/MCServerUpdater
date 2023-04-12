@@ -11,14 +11,14 @@ public interface SimpleChecksum extends Checksum {
     default boolean checksum(File file) throws Exception {
         String checksum = getChecksum();
         if (this instanceof Updater) {
-            ((Updater) this).getUpdateBuilder().debug("Checksum: " + checksum);
+            ((Updater) this).debug("Checksum: " + checksum);
         }
         if (checksum == null) {
             return false;
         }
         String currentChecksum = getCurrentChecksum(file);
         if (this instanceof Updater) {
-            ((Updater) this).getUpdateBuilder().debug("Current checksum: " + currentChecksum);
+            ((Updater) this).debug("Current checksum: " + currentChecksum);
         }
         return currentChecksum.equals(checksum);
     }

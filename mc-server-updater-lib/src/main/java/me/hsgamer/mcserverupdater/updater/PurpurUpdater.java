@@ -91,7 +91,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater {
     }
 
     @Override
-    public UpdateBuilder getUpdateBuilder() {
-        return updateBuilder;
+    public void debug(String message) {
+        updateBuilder.debug(message);
     }
 }

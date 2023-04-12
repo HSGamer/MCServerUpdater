@@ -8,12 +8,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
 
-public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdater {
+public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdater {
     protected final UpdateBuilder updateBuilder;
     protected final String version;
     protected final String build;
@@ -36,14 +37,14 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
         String url = getJobUrl();
         String api = url + "api/json";
         String treeUrl = api + "?tree=lastSuccessfulBuild[number]";
-        getUpdateBuilder().debug("Getting latest build from " + treeUrl);
+        debug("Getting latest build from " + treeUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(treeUrl));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject build = jsonObject.getJSONObject("lastSuccessfulBuild");
             String buildNumber = Integer.toString(build.getInt("number"));
-            getUpdateBuilder().debug("Latest build: " + buildNumber);
+            debug("Latest build: " + buildNumber);
             return buildNumber;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -56,14 +57,19 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
     }
 
     @Override
+    public void setChecksum(File file) throws Exception {
+        updateBuilder.checksumConsumer().accept(getChecksum());
+    }
+
+    @Override
     public InputStream getInputStream() {
         String url = getArtifactUrl();
-        getUpdateBuilder().debug("Downloading " + url);
+        debug("Downloading " + url);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
             return connection.getInputStream();
         } catch (IOException e) {
-            getUpdateBuilder().debug(e);
+            debug(e);
             return null;
         }
     }
@@ -87,7 +93,7 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
         String jobUrl = getJobUrl();
         String artifactListUrl = jobUrl + build + "/api/json?tree=artifacts[fileName,relativePath]";
         String artifact = "INVALID";
-        getUpdateBuilder().debug("Getting artifact from " + artifactListUrl);
+        debug("Getting artifact from " + artifactListUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactListUrl));
             InputStream inputStream = connection.getInputStream();
@@ -102,16 +108,21 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
                 }
             }
         } catch (IOException e) {
-            getUpdateBuilder().debug(e);
+            debug(e);
         }
         String artifactUrl = jobUrl + "%s/artifact/%s";
         String formattedArtifactUrl = String.format(artifactUrl, build, artifact);
-        getUpdateBuilder().debug("Artifact URL: " + formattedArtifactUrl);
+        debug("Artifact URL: " + formattedArtifactUrl);
         return formattedArtifactUrl;
     }
 
     @Override
-    public UpdateBuilder getUpdateBuilder() {
-        return updateBuilder;
+    public String getCurrentChecksum(File file) throws Exception {
+        return updateBuilder.checksumSupplier().get();
+    }
+
+    @Override
+    public void debug(String message) {
+        updateBuilder.debug(message);
     }
 }

@@ -277,40 +277,6 @@ public final class UpdateBuilder {
     }
 
     /**
-     * Debug a message
-     *
-     * @param message the message
-     * @param args    the arguments
-     */
-    public void debug(String message, Object... args) {
-        debugConsumer.accept(String.format(message, args));
-    }
-
-    /**
-     * Debug a throwable
-     *
-     * @param throwable the throwable
-     */
-    public void debug(Throwable throwable) {
-        debug(throwable.getClass().getName() + ": " + throwable.getMessage());
-        for (StackTraceElement element : throwable.getStackTrace()) {
-            debug("    " + element.toString());
-        }
-        Optional.ofNullable(throwable.getCause()).ifPresent(cause -> debug("Caused by: " + cause.getMessage(), cause));
-    }
-
-    /**
-     * Debug a message
-     *
-     * @param message   the message
-     * @param throwable the throwable
-     */
-    private void debug(String message, Throwable throwable) {
-        debug(message);
-        debug(throwable);
-    }
-
-    /**
      * Execute the update process
      *
      * @return the update status

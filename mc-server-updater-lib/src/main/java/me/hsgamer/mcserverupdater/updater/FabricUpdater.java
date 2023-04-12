@@ -4,16 +4,17 @@ import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
-import me.hsgamer.mcserverupdater.api.LocalChecksum;
+import me.hsgamer.mcserverupdater.api.SimpleChecksum;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-public class FabricUpdater implements InputStreamUpdater, LocalChecksum {
+public class FabricUpdater implements InputStreamUpdater, SimpleChecksum {
     private static final String BASE_URL = "https://meta.fabricmc.net/v2/versions";
     private static final String GAME_URL = BASE_URL + "/game";
     private static final String LOADER_URL = BASE_URL + "/loader";
@@ -106,7 +107,17 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum {
     }
 
     @Override
-    public UpdateBuilder getUpdateBuilder() {
-        return updateBuilder;
+    public void setChecksum(File file) throws Exception {
+        updateBuilder.checksumConsumer().accept(getChecksum());
+    }
+
+    @Override
+    public String getCurrentChecksum(File file) throws Exception {
+        return updateBuilder.checksumSupplier().get();
+    }
+
+    @Override
+    public void debug(String message) {
+        updateBuilder.debug(message);
     }
 }
