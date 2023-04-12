@@ -54,8 +54,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
             }
             return build;
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Can't get build", e);
         }
     }
 
@@ -86,8 +85,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
             versionList.sort(Collections.reverseOrder(Utils.getVersionComparator()));
             return versionList.get(0);
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Can't get default version", e);
         }
     }
 
