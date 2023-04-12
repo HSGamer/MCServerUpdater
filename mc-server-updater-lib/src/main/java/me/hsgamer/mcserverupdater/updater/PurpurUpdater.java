@@ -26,7 +26,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater {
 
     public PurpurUpdater(VersionQuery versionQuery) {
         this.updateBuilder = versionQuery.updateBuilder;
-        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         this.build = getBuild();
     }
 

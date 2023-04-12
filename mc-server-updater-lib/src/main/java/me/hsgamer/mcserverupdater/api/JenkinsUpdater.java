@@ -22,7 +22,7 @@ public abstract class JenkinsUpdater implements LocalChecksum, InputStreamUpdate
     protected JenkinsUpdater(VersionQuery versionQuery, String jenkinsUrl) {
         this.jenkinsUrl = jenkinsUrl.endsWith("/") ? jenkinsUrl : jenkinsUrl + "/";
         this.updateBuilder = versionQuery.updateBuilder;
-        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         this.build = getBuild();
     }
 

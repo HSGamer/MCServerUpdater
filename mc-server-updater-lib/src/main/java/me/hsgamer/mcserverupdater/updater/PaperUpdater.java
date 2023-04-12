@@ -31,7 +31,7 @@ public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum {
         buildUrl = versionUrl + "builds/%s/";
         downloadUrl = buildUrl + "downloads/%s";
 
-        version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         build = getBuild();
     }
 

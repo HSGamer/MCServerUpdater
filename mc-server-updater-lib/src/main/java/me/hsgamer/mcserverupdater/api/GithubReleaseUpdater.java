@@ -32,7 +32,7 @@ public abstract class GithubReleaseUpdater implements LocalChecksum, UrlInputStr
         this.releaseByTagUrl = url + "releases/tags/%s";
         this.releaseAssetUrl = url + "releases/%s/assets";
         this.updateBuilder = versionQuery.updateBuilder;
-        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         this.build = getBuild();
     }
 

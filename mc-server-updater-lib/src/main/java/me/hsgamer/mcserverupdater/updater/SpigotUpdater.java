@@ -19,7 +19,7 @@ public class SpigotUpdater implements Updater {
 
     public SpigotUpdater(VersionQuery versionQuery) {
         this.updateBuilder = versionQuery.updateBuilder;
-        this.version = versionQuery.isLatest ? "latest" : versionQuery.version;
+        this.version = versionQuery.isDefault ? "latest" : versionQuery.version;
     }
 
     private File downloadBuildTools() {

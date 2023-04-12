@@ -6,7 +6,6 @@ import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
 import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
-
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -14,10 +13,10 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
     private static final String LOADER_URL = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
@@ -30,8 +29,8 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
     public ForgeUpdater(VersionQuery versionQuery, boolean isRecommended) {
         this.updateBuilder = versionQuery.updateBuilder;
         this.isRecommended = isRecommended;
-        
-        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+
+        this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         this.build = getBuild();
     }
 
@@ -68,7 +67,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject promos = jsonObject.getJSONObject("promos");
             Iterator<?> keys = promos.keys();
-            while(keys.hasNext()) {
+            while (keys.hasNext()) {
                 String key = (String) keys.next();
                 if (key.contains("recommended")) {
                     versionList.add(key);

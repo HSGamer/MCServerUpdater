@@ -27,7 +27,7 @@ public abstract class GithubBranchUpdater implements LocalChecksum, UrlInputStre
         this.downloadUrl = "https://github.com/" + repo + "/raw/%s/%s";
         this.filesUrl = apiUrl + "git/trees/%s?recursive=true";
         this.updateBuilder = versionQuery.updateBuilder;
-        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         this.build = getBuild();
     }
 

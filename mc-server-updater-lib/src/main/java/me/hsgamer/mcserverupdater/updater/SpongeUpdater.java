@@ -30,7 +30,7 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
         this.artifactUrl = baseUrl + (isForge ? "spongeforge" : "spongevanilla");
         versionUrl = artifactUrl + "/versions";
         buildUrl = versionUrl + "/%s";
-        this.version = versionQuery.isLatest ? getDefaultVersion() : versionQuery.version;
+        this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         this.build = getBuild();
     }
 

@@ -27,7 +27,7 @@ public class FabricUpdater implements InputStreamUpdater, LocalChecksum {
     public FabricUpdater(VersionQuery versionQuery, boolean isStable) {
         this.isStable = isStable;
         this.updateBuilder = versionQuery.updateBuilder;
-        this.version = versionQuery.isLatest ? getLatestGameVersion() : versionQuery.version;
+        this.version = versionQuery.isDefault ? getLatestGameVersion() : versionQuery.version;
         this.build = getBuild();
     }
 
