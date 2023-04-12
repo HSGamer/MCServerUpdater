@@ -1,6 +1,7 @@
 package me.hsgamer.mcserverupdater.util;
 
 import java.io.*;
+import java.util.Comparator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -76,5 +77,21 @@ public class Utils {
             }
             return new ByteArrayInputStream(outputStream.toByteArray());
         }
+    }
+
+    public static Comparator<String> getVersionComparator() {
+        return (o1, o2) -> {
+            String[] split1 = o1.split("\\.");
+            String[] split2 = o2.split("\\.");
+            int length = Math.min(split1.length, split2.length);
+            for (int i = 0; i < length; i++) {
+                int i1 = Integer.parseInt(split1[i]);
+                int i2 = Integer.parseInt(split2[i]);
+                if (i1 != i2) {
+                    return i1 - i2;
+                }
+            }
+            return split1.length - split2.length;
+        };
     }
 }
