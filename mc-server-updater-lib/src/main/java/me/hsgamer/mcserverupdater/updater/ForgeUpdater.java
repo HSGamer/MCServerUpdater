@@ -47,12 +47,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject promos = jsonObject.getJSONObject("promos");
-            if (isRecommended && promos.getBoolean(version + "-recommended")) {
-                build = promos.getString(version + "-recommended");
-            } else {
-                build = promos.getString(version + "-latest");
-            }
-            return build;
+            return promos.getString(version + (isRecommended ? "-recommended" : "-latest"));
         } catch (Exception e) {
             throw new RuntimeException("Can't get build", e);
         }
@@ -91,7 +86,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
 
     @Override
     public String getChecksum() {
-        String formattedUrl = getDownload() + ".sha256";
+        String formattedUrl = getDownload() + ".md5";
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
             InputStream inputStream = connection.getInputStream();
@@ -111,7 +106,7 @@ public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
 
     @Override
     public MessageDigest getMessageDigest() throws Exception {
-        return MessageDigest.getInstance("SHA-256");
+        return MessageDigest.getInstance("MD5");
     }
 
     @Override
