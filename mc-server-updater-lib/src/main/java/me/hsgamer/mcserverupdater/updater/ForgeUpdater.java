@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 public class ForgeUpdater implements InputStreamUpdater, FileDigestChecksum {
     private static final String LOADER_URL = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
-    private static final String DOWNLOAD_URL = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s/forge-%1$s-universal.jar";
+    private static final String DOWNLOAD_URL = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s/forge-%1$s-installer.jar";
     private final String downloadUrl;
     private final UpdateBuilder updateBuilder;
     private final Boolean isRecommended;
