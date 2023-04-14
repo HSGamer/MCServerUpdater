@@ -43,6 +43,7 @@ public final class UpdateBuilder {
         registerUpdater(versionQuery -> new ForgeUpdater(versionQuery, false), "forge", "minecraftforge");
         registerUpdater(versionQuery -> new ForgeUpdater(versionQuery, true), "forge-recommended", "minecraftforge-recommended");
         registerUpdater(PlazmaUpdater::new, "plazma");
+        registerUpdater(KaiijuUpdater::new, "kaiiju", "kaiijumc");
     }
 
     private final String project;
