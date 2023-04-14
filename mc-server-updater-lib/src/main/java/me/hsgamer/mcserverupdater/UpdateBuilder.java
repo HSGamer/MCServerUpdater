@@ -185,18 +185,18 @@ public final class UpdateBuilder {
      * @return the update process
      */
     public UpdateBuilder checksumFile(File checksumFile) {
-        checksumSupplier(() -> {
-            if (!checksumFile.exists() && Utils.isFailedToCreateFile(checksumFile)) {
-                return "";
-            }
-            return Utils.getString(checksumFile);
-        });
-        checksumConsumer(checksum -> {
-            if (checksumFile.exists() || !Utils.isFailedToCreateFile(checksumFile)) {
-                Utils.writeString(checksumFile, checksum);
-            }
-        });
-        return this;
+        return this
+                .checksumSupplier(() -> {
+                    if (!checksumFile.exists() && Utils.isFailedToCreateFile(checksumFile)) {
+                        return "";
+                    }
+                    return Utils.getString(checksumFile);
+                })
+                .checksumConsumer(checksum -> {
+                    if (checksumFile.exists() || !Utils.isFailedToCreateFile(checksumFile)) {
+                        Utils.writeString(checksumFile, checksum);
+                    }
+                });
     }
 
     /**
