@@ -42,6 +42,7 @@ public final class UpdateBuilder {
         registerUpdater(TitaniumUpdater::new, "titaniummc", "titanium");
         registerUpdater(versionQuery -> new ForgeUpdater(versionQuery, false), "forge", "minecraftforge");
         registerUpdater(versionQuery -> new ForgeUpdater(versionQuery, true), "forge-recommended", "minecraftforge-recommended");
+        registerUpdater(PlazmaUpdater::new, "plazma");
     }
 
     private final String project;
