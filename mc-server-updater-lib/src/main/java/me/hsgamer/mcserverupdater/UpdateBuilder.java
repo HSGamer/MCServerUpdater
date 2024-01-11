@@ -40,8 +40,6 @@ public final class UpdateBuilder {
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, false), "spongeforge");
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, true), "spongeforge-recommended");
         registerUpdater(TitaniumUpdater::new, "titaniummc", "titanium");
-        registerUpdater(versionQuery -> new ForgeUpdater(versionQuery, false), "forge", "minecraftforge");
-        registerUpdater(versionQuery -> new ForgeUpdater(versionQuery, true), "forge-recommended", "minecraftforge-recommended");
         registerUpdater(PlazmaUpdater::new, "plazma");
         registerUpdater(KaiijuUpdater::new, "kaiiju", "kaiijumc");
         registerUpdater(DivineUpdater::new, "divine", "divinemc");
