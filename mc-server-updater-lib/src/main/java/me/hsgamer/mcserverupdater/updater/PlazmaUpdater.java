@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class PlazmaUpdater extends GithubReleaseUpdater {
     public PlazmaUpdater(VersionQuery versionQuery) {
-        super(versionQuery, "PlazmaMC/Plazma");
+        super(versionQuery, "PlazmaMC/PlazmaBukkit");
     }
 
     @Override
