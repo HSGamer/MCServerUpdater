@@ -18,7 +18,7 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
     protected final UpdateBuilder updateBuilder;
     protected final String version;
     protected final String build;
-    private final String jenkinsUrl;
+    protected final String jenkinsUrl;
 
     protected JenkinsUpdater(VersionQuery versionQuery, String jenkinsUrl) {
         this.jenkinsUrl = jenkinsUrl.endsWith("/") ? jenkinsUrl : jenkinsUrl + "/";
