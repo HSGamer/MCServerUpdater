@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -327,7 +328,7 @@ public final class UpdateBuilder {
      *
      * @return the status of the process
      */
-    public UpdateStatus execute() throws Exception {
+    public UpdateStatus execute() throws ExecutionException, InterruptedException {
         return executeAsync().get();
     }
 
