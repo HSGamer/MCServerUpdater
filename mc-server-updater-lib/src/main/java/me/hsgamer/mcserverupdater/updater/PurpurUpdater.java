@@ -1,5 +1,6 @@
 package me.hsgamer.mcserverupdater.updater;
 
+import me.hsgamer.hscore.logger.common.Logger;
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
@@ -91,7 +92,7 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater {
     }
 
     @Override
-    public void debug(String message) {
-        updateBuilder.debug(message);
+    public Logger getLogger() {
+        return updateBuilder.logger();
     }
 }

@@ -3,6 +3,7 @@ package me.hsgamer.mcserverupdater;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import me.hsgamer.hscore.logger.jul.JulLogger;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -72,7 +73,7 @@ public final class MCServerUpdater {
                 .workingDirectory(workingDirectoryName)
                 .outputFile(outputName)
                 .checksumFile(checksumFileName)
-                .debugConsumer(LOGGER::fine);
+                .logger(new JulLogger(LOGGER));
 
         try {
             LOGGER.info("Start updating...");

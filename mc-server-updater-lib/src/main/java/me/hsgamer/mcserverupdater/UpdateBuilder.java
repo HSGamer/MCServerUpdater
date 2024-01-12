@@ -1,6 +1,8 @@
 package me.hsgamer.mcserverupdater;
 
 import me.hsgamer.hscore.collections.map.CaseInsensitiveStringHashMap;
+import me.hsgamer.hscore.logger.common.LogLevel;
+import me.hsgamer.hscore.logger.common.Logger;
 import me.hsgamer.mcserverupdater.api.Checksum;
 import me.hsgamer.mcserverupdater.api.Updater;
 import me.hsgamer.mcserverupdater.updater.*;
@@ -53,7 +55,7 @@ public final class UpdateBuilder {
     private ChecksumSupplier checksumSupplier = () -> "";
     private ChecksumConsumer checksumConsumer = s -> {
     };
-    private Consumer<String> debugConsumer = s -> {
+    private Logger logger = (logLevel, s) -> {
     };
 
     private UpdateBuilder(String project) {
@@ -167,14 +169,24 @@ public final class UpdateBuilder {
     }
 
     /**
+     * Set the logger
+     *
+     * @param logger the logger
+     * @return the update process
+     */
+    public UpdateBuilder logger(Logger logger) {
+        this.logger = logger;
+        return this;
+    }
+
+    /**
      * Set the debug consumer
      *
      * @param debugConsumer the debug consumer
      * @return the update process
      */
     public UpdateBuilder debugConsumer(Consumer<String> debugConsumer) {
-        this.debugConsumer = debugConsumer;
-        return this;
+        return logger((logLevel, s) -> debugConsumer.accept("[" + logLevel.name() + "] " + s));
     }
 
     /**
@@ -260,12 +272,12 @@ public final class UpdateBuilder {
     }
 
     /**
-     * Get the debug consumer
+     * Get the logger
      *
-     * @return the debug consumer
+     * @return the logger
      */
-    public Consumer<String> debugConsumer() {
-        return debugConsumer;
+    public Logger logger() {
+        return logger;
     }
 
     /**
@@ -274,7 +286,7 @@ public final class UpdateBuilder {
      * @param message the message
      */
     public void debug(String message) {
-        debugConsumer.accept(message);
+        logger.log(LogLevel.DEBUG, message);
     }
 
     /**

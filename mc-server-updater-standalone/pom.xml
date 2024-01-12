@@ -57,5 +57,10 @@
             <artifactId>jopt-simple</artifactId>
             <version>6.0-alpha-3</version>
         </dependency>
+        <dependency>
+            <groupId>me.hsgamer</groupId>
+            <artifactId>hscore-logger-jul</artifactId>
+            <version>4.3.26</version>
+        </dependency>
     </dependencies>
 </project>

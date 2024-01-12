@@ -1,5 +1,6 @@
 package me.hsgamer.mcserverupdater.api;
 
+import me.hsgamer.hscore.logger.common.Logger;
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
@@ -106,7 +107,7 @@ public abstract class GithubBranchUpdater implements SimpleChecksum, UrlInputStr
     }
 
     @Override
-    public void debug(String message) {
-        updateBuilder.debug(message);
+    public Logger getLogger() {
+        return updateBuilder.logger();
     }
 }
