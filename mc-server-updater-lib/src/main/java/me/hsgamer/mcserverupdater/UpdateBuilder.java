@@ -40,7 +40,6 @@ public final class UpdateBuilder {
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, false, true), "spongevanilla-recommended");
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, false), "spongeforge");
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, true), "spongeforge-recommended");
-        registerUpdater(TitaniumUpdater::new, "titaniummc", "titanium");
         registerUpdater(PlazmaUpdater::new, "plazma");
         registerUpdater(KaiijuUpdater::new, "kaiiju", "kaiijumc");
         registerUpdater(DivineUpdater::new, "divine", "divinemc");
