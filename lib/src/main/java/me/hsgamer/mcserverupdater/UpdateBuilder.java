@@ -31,6 +31,7 @@ public final class UpdateBuilder {
         registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "travertine"), "travertine");
         registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "waterfall"), "waterfall");
         registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "velocity"), "velocity");
+        registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "folia"), "folia");
         registerUpdater(PurpurUpdater::new, "purpur", "purpurmc");
         registerUpdater(BungeeCordUpdater::new, "bungeecord", "bungee");
         registerUpdater(SpigotUpdater::new, "spigot", "spigotmc");
