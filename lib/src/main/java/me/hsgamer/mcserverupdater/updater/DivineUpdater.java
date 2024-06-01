@@ -14,7 +14,7 @@ public class DivineUpdater extends GithubReleaseUpdater {
 
     @Override
     public Pattern getArtifactPattern() {
-        if (VersionUtils.isMojmapDefault(version)) {
+        if (VersionUtils.isMojmapPaperDefault(version)) {
             return Pattern.compile("DivineMC-paperclip-.+-mojmap\\.jar");
         } else {
             return Pattern.compile("DivineMC-paperclip-.+-reobf\\.jar");

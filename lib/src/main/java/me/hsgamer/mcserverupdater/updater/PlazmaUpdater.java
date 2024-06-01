@@ -14,7 +14,7 @@ public class PlazmaUpdater extends GithubReleaseUpdater {
 
     @Override
     public Pattern getArtifactPattern() {
-        if (VersionUtils.isMojmapDefault(version)) {
+        if (VersionUtils.isMojmapPaperDefault(version)) {
             return Pattern.compile("plazma-paperclip-.+-mojmap\\.jar");
         } else {
             return Pattern.compile("plazma-paperclip-.+-reobf\\.jar");

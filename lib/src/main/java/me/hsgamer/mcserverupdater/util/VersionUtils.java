@@ -17,7 +17,7 @@ public class VersionUtils {
         return majorVersion > major || (majorVersion == major && minorVersion >= minor);
     }
 
-    public static boolean isMojmapDefault(String version) {
+    public static boolean isMojmapPaperDefault(String version) {
         return isAtLeast(version, 20, 5);
     }
 }
