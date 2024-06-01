@@ -2,6 +2,7 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
+import me.hsgamer.mcserverupdater.util.VersionUtils;
 import org.json.JSONObject;
 
 import java.util.regex.Pattern;
@@ -13,7 +14,11 @@ public class PlazmaUpdater extends GithubReleaseUpdater {
 
     @Override
     public Pattern getArtifactPattern() {
-        return Pattern.compile("plazma-paperclip-.+-reobf\\.jar");
+        if (VersionUtils.isMojmapDefault(version)) {
+            return Pattern.compile("plazma-paperclip-.+-mojmap\\.jar");
+        } else {
+            return Pattern.compile("plazma-paperclip-.+-reobf\\.jar");
+        }
     }
 
     @Override
@@ -23,6 +28,6 @@ public class PlazmaUpdater extends GithubReleaseUpdater {
 
     @Override
     public JSONObject getReleaseObject() {
-        return getReleaseByTag("latest-" + version);
+        return getReleaseByTag("build/" + version + "/latest");
     }
 }

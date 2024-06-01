@@ -2,6 +2,7 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
+import me.hsgamer.mcserverupdater.util.VersionUtils;
 import org.json.JSONObject;
 
 import java.util.regex.Pattern;
@@ -13,7 +14,11 @@ public class DivineUpdater extends GithubReleaseUpdater {
 
     @Override
     public Pattern getArtifactPattern() {
-        return Pattern.compile("DivineMC-paperclip-.+-reobf\\.jar");
+        if (VersionUtils.isMojmapDefault(version)) {
+            return Pattern.compile("DivineMC-paperclip-.+-mojmap\\.jar");
+        } else {
+            return Pattern.compile("DivineMC-paperclip-.+-reobf\\.jar");
+        }
     }
 
     @Override
