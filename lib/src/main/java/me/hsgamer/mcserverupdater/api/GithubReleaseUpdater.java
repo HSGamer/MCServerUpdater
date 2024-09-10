@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public abstract class GithubReleaseUpdater implements SimpleChecksum, UrlInputStreamUpdater {
@@ -63,6 +64,34 @@ public abstract class GithubReleaseUpdater implements SimpleChecksum, UrlInputSt
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected JSONObject getReleaseByTagMatch(Predicate<String> tagPredicate) {
+        String url = releasesUrl;
+        int page = 1;
+        while (true) {
+            String pageUrl = url + "?per_page=100&page=" + page;
+            debug("Getting release from " + pageUrl);
+            try {
+                URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(pageUrl));
+                InputStream inputStream = connection.getInputStream();
+                JSONArray array = new JSONArray(new JSONTokener(inputStream));
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject object = array.getJSONObject(i);
+                    String tag = object.getString("tag_name");
+                    if (tagPredicate.test(tag)) {
+                        return object;
+                    }
+                }
+                if (array.length() < 100) {
+                    break;
+                }
+                page++;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        throw new RuntimeException("Cannot find the release");
     }
 
     private String getBuild() {
