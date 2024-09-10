@@ -46,6 +46,7 @@ public final class UpdateBuilder {
         registerUpdater(PlazmaUpdater::new, "plazma");
         registerUpdater(KaiijuUpdater::new, "kaiiju", "kaiijumc");
         registerUpdater(DivineUpdater::new, "divine", "divinemc");
+        registerUpdater(LeafUpdater::new, "leaf");
     }
 
     private final String project;
