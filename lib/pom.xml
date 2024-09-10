@@ -32,7 +32,7 @@
         <dependency>
             <groupId>me.hsgamer</groupId>
             <artifactId>hscore-logger-common</artifactId>
-            <version>4.3.26</version>
+            <version>4.5.4</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
