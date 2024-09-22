@@ -93,10 +93,8 @@ public class MohistUpdater implements InputStreamUpdater, FileDigestChecksum {
 
     @Override
     public InputStream getInputStream() {
-        String fileName;
         try {
             JSONObject download = getDownload();
-            fileName = download.getString("originUrl");
         } catch (Exception e) {
             e.printStackTrace();
             return null;
