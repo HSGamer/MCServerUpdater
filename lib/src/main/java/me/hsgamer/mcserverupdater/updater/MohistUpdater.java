@@ -21,16 +21,15 @@ public class MohistUpdater implements InputStreamUpdater, FileDigestChecksum {
     private final String version;
     private final String build;
     private final String projectUrl;
-    private final String versionUrl;
     private final String buildUrl;
     private final String downloadUrl;
 
     public MohistUpdater(VersionQuery versionQuery, String project) {
         this.updateBuilder = versionQuery.updateBuilder;
-        projectUrl = String.format("https://mohistmc.com/api/v2/projects/%s/", project);
-        versionUrl = projectUrl + "%s/";
-        buildUrl = versionUrl + "builds/";
-        downloadUrl = buildUrl + "%s/download";
+        projectUrl = String.format("https://mohistmc.com/api/v2/projects/%s", project);
+        String versionUrl = projectUrl + "/%s";
+        buildUrl = versionUrl + "/builds";
+        downloadUrl = buildUrl + "/%s/download";
 
         version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         build = getBuild();
