@@ -28,7 +28,7 @@ public class PandaSpigotUpdater extends BibliothekUpdater {
 
     @Override
     protected String getDownloadName(JSONObject downloadObject) {
-        return downloadObject.getString("name");
+        return "paperclip";
     }
 
     @Override
