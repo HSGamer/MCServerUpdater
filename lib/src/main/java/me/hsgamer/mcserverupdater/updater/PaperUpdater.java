@@ -28,7 +28,7 @@ public class PaperUpdater extends BibliothekUpdater {
 
     @Override
     protected String getDownloadName(JSONObject downloadObject) {
-        return "name";
+        return downloadObject.getString("name");
     }
 
     @Override
