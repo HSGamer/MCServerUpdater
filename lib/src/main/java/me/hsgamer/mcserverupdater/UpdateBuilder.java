@@ -1,6 +1,6 @@
 package me.hsgamer.mcserverupdater;
 
-import me.hsgamer.hscore.collections.map.CaseInsensitiveStringHashMap;
+import me.hsgamer.hscore.collections.map.CaseInsensitiveStringLinkedMap;
 import me.hsgamer.hscore.logger.common.LogLevel;
 import me.hsgamer.hscore.logger.common.Logger;
 import me.hsgamer.mcserverupdater.api.Checksum;
@@ -24,7 +24,7 @@ import java.util.function.Function;
  * Where to create the update process
  */
 public final class UpdateBuilder {
-    private static final Map<String, Function<VersionQuery, Updater>> UPDATERS = new CaseInsensitiveStringHashMap<>();
+    private static final Map<String, Function<VersionQuery, Updater>> UPDATERS = new CaseInsensitiveStringLinkedMap<>();
 
     static {
         registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "paper"), "paper", "papermc", "paperspigot");
@@ -44,7 +44,7 @@ public final class UpdateBuilder {
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, false, true), "spongevanilla-recommended");
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, false), "spongeforge");
         registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, true), "spongeforge-recommended");
-	registerUpdater(versionQuery -> new MohistUpdater(versionQuery, "mohist"), "mohist");
+        registerUpdater(versionQuery -> new MohistUpdater(versionQuery, "mohist"), "mohist");
         registerUpdater(PlazmaUpdater::new, "plazma");
         registerUpdater(KaiijuUpdater::new, "kaiiju", "kaiijumc");
         registerUpdater(DivineUpdater::new, "divine", "divinemc");
