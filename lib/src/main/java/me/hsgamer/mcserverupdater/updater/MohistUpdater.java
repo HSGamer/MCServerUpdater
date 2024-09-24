@@ -1,4 +1,3 @@
-
 package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.hscore.logger.common.Logger;
@@ -93,13 +92,6 @@ public class MohistUpdater implements InputStreamUpdater, FileDigestChecksum {
 
     @Override
     public InputStream getInputStream() {
-        try {
-            JSONObject download = getDownload();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
         String formattedUrl = String.format(downloadUrl, version, build);
         updateBuilder.debug("Getting input stream from " + formattedUrl);
         try {
