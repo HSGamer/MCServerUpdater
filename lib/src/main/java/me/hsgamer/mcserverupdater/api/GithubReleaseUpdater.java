@@ -66,11 +66,10 @@ public abstract class GithubReleaseUpdater implements SimpleChecksum, UrlInputSt
         }
     }
 
-    protected JSONObject getReleaseByTagMatch(Predicate<String> tagPredicate) {
-        String url = releasesUrl;
+    protected JSONObject getReleaseByPredicate(Predicate<JSONObject> predicate) {
         int page = 1;
         while (true) {
-            String pageUrl = url + "?per_page=100&page=" + page;
+            String pageUrl = releasesUrl + "?per_page=100&page=" + page;
             debug("Getting release from " + pageUrl);
             try {
                 URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(pageUrl));
@@ -78,8 +77,7 @@ public abstract class GithubReleaseUpdater implements SimpleChecksum, UrlInputSt
                 JSONArray array = new JSONArray(new JSONTokener(inputStream));
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject object = array.getJSONObject(i);
-                    String tag = object.getString("tag_name");
-                    if (tagPredicate.test(tag)) {
+                    if (predicate.test(object)) {
                         return object;
                     }
                 }
@@ -92,6 +90,10 @@ public abstract class GithubReleaseUpdater implements SimpleChecksum, UrlInputSt
             }
         }
         throw new RuntimeException("Cannot find the release");
+    }
+
+    protected JSONObject getReleaseByTagMatch(Predicate<String> tagPredicate) {
+        return getReleaseByPredicate(object -> tagPredicate.test(object.getString("tag_name")));
     }
 
     private String getBuild() {
