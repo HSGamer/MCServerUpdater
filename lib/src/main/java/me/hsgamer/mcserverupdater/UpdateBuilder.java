@@ -51,6 +51,7 @@ public final class UpdateBuilder {
         registerUpdater(LeafUpdater::new, "leaf");
         registerUpdater(versionQuery -> new LeavesUpdater(versionQuery, "leaves"), "leaves", "leavesmc");
         registerUpdater(LuminolUpdater::new, "luminol", "luminolmc");
+        registerUpdater(CanvasUpdater::new, "canvas", "canvasmc");
     }
 
     private final String project;
