@@ -52,6 +52,9 @@ public final class UpdateBuilder {
         registerUpdater(versionQuery -> new LeavesUpdater(versionQuery, "leaves"), "leaves", "leavesmc");
         registerUpdater(LuminolUpdater::new, "luminol", "luminolmc");
         registerUpdater(CanvasUpdater::new, "canvas", "canvasmc");
+        registerUpdater(versionQuery -> new MultiPaperUpdater(versionQuery, "multipaper"), "multipaper");
+        registerUpdater(versionQuery -> new MultiPaperUpdater(versionQuery, "multipaper", "master"), "multipaper-master");
+        registerUpdater(versionQuery -> new MultiPaperUpdater(versionQuery, "shreddedpaper"), "shreddedpaper");
     }
 
     private final String project;

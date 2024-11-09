@@ -14,17 +14,17 @@ public class CanvasUpdater extends GithubReleaseUpdater {
         super(versionQuery, "CraftCanvasMC/Canvas");
     }
 
-    @Override
-    public Pattern getArtifactPattern() {
-        return Pattern.compile(".*\\.jar");
-    }
-
     private static String getVersion(String body) {
         Matcher versionMatcher = VERSION_PATTERN.matcher(body);
         if (!versionMatcher.find()) {
             throw new IllegalStateException("Cannot find the version");
         }
         return versionMatcher.group(1);
+    }
+
+    @Override
+    public Pattern getArtifactPattern() {
+        return Pattern.compile(".*\\.jar");
     }
 
     @Override
