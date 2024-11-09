@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-public abstract class BibliothekUpdater implements InputStreamUpdater, FileDigestChecksum {
+public abstract class BibliothekUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String version;
     private final String build;
@@ -91,24 +91,16 @@ public abstract class BibliothekUpdater implements InputStreamUpdater, FileDiges
     }
 
     @Override
-    public final InputStream getInputStream() {
+    public final String getFileUrl() {
         String downloadName;
         try {
             JSONObject application = getDownload();
             downloadName = getDownloadName(application);
         } catch (Exception e) {
-            e.printStackTrace();
+            debug(e);
             return null;
         }
-        String formattedUrl = String.format(downloadUrl, version, build, downloadName);
-        updateBuilder.debug("Getting input stream from " + formattedUrl);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
-            return connection.getInputStream();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return String.format(downloadUrl, version, build, downloadName);
     }
 
     @Override

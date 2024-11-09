@@ -4,8 +4,8 @@ import me.hsgamer.hscore.logger.common.Logger;
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
-import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
 import me.hsgamer.mcserverupdater.api.SimpleChecksum;
+import me.hsgamer.mcserverupdater.api.UrlInputStreamUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-public class FabricUpdater implements InputStreamUpdater, SimpleChecksum {
+public class FabricUpdater implements UrlInputStreamUpdater, SimpleChecksum {
     private static final String BASE_URL = "https://meta.fabricmc.net/v2/versions";
     private static final String GAME_URL = BASE_URL + "/game";
     private static final String LOADER_URL = BASE_URL + "/loader";
@@ -84,22 +84,14 @@ public class FabricUpdater implements InputStreamUpdater, SimpleChecksum {
     }
 
     @Override
-    public InputStream getInputStream() {
+    public String getFileUrl() {
         String[] split = build.split(";");
         if (split.length != 2) {
             return null;
         }
         String loaderVersion = split[0];
         String installerVersion = split[1];
-        String downloadUrl = getLatestDownloadUrl(version, loaderVersion, installerVersion);
-        updateBuilder.debug("Getting input stream from " + downloadUrl);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(downloadUrl));
-            return connection.getInputStream();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return getLatestDownloadUrl(version, loaderVersion, installerVersion);
     }
 
     @Override

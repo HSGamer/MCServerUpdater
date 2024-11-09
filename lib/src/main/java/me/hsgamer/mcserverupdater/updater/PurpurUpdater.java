@@ -5,7 +5,7 @@ import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
-import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
+import me.hsgamer.mcserverupdater.api.UrlInputStreamUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 
-public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater {
+public class PurpurUpdater implements FileDigestChecksum, UrlInputStreamUpdater {
     private static final String URL = "https://api.purpurmc.org/v2/purpur/";
     private static final String VERSION_URL = URL + "%s/";
     private static final String BUILD_URL = VERSION_URL + "%s/";
@@ -64,16 +64,8 @@ public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater {
     }
 
     @Override
-    public InputStream getInputStream() {
-        String url = String.format(DOWNLOAD_URL, version, build);
-        updateBuilder.debug("Downloading from " + url);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
-            return connection.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public String getFileUrl() {
+        return String.format(DOWNLOAD_URL, version, build);
     }
 
     @Override

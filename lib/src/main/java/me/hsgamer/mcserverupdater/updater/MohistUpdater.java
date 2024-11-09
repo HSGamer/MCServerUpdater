@@ -5,7 +5,7 @@ import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
-import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
+import me.hsgamer.mcserverupdater.api.UrlInputStreamUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 
-public class MohistUpdater implements InputStreamUpdater, FileDigestChecksum {
+public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String version;
     private final String build;
@@ -90,16 +90,8 @@ public class MohistUpdater implements InputStreamUpdater, FileDigestChecksum {
     }
 
     @Override
-    public InputStream getInputStream() {
-        String formattedUrl = String.format(downloadUrl, version, build);
-        updateBuilder.debug("Getting input stream from " + formattedUrl);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
-            return connection.getInputStream();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public String getFileUrl() {
+        return String.format(downloadUrl, version, build);
     }
 
     @Override

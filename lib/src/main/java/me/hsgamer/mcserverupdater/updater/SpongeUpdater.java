@@ -5,7 +5,7 @@ import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.api.FileDigestChecksum;
-import me.hsgamer.mcserverupdater.api.InputStreamUpdater;
+import me.hsgamer.mcserverupdater.api.UrlInputStreamUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 
-public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
+public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String version;
     private final String build;
@@ -101,18 +101,15 @@ public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
     }
 
     @Override
-    public InputStream getInputStream() {
+    public String getFileUrl() {
         try {
             JSONObject jarInfo = getJarInfo(build);
             if (jarInfo == null) {
                 return null;
             }
-            String downloadUrl = jarInfo.getString("downloadUrl");
-            updateBuilder.debug("Getting the input stream from " + downloadUrl);
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(downloadUrl));
-            return connection.getInputStream();
+            return jarInfo.getString("downloadUrl");
         } catch (Exception e) {
-            e.printStackTrace();
+            debug(e);
             return null;
         }
     }
