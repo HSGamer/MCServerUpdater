@@ -9,25 +9,21 @@ import java.util.regex.Pattern;
 
 public class DivineUpdater extends GithubReleaseUpdater {
     public DivineUpdater(VersionQuery versionQuery) {
-        super(versionQuery, "DivineMC/DivineMC");
+        super(versionQuery, "BX-Team/DivineMC");
     }
 
     @Override
     public Pattern getArtifactPattern() {
-        if (VersionUtils.isMojmapPaperDefault(version)) {
-            return Pattern.compile("DivineMC-paperclip-.+-mojmap\\.jar");
-        } else {
-            return Pattern.compile("DivineMC-paperclip-.+-reobf\\.jar");
-        }
+        return Pattern.compile(".*\\.jar");
     }
 
     @Override
     public String getDefaultVersion() {
-        return "1.20.4";
+        return "1.21.4";
     }
 
     @Override
     public JSONObject getReleaseObject() {
-        return getReleaseByTag("latest-" + version);
+        return getReleaseByTagMatch(tag -> tag.startsWith(version));
     }
 }
