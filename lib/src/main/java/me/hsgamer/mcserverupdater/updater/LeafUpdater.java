@@ -13,7 +13,7 @@ public class LeafUpdater extends GithubReleaseUpdater {
 
     @Override
     public Pattern getArtifactPattern() {
-        return Pattern.compile("leaf-[\\d.]+(-mojmap)?\\.jar");
+        return Pattern.compile("leaf-[\\d.]+(-(\\d+|mojmap))?\\.jar");
     }
 
     @Override
