@@ -1,44 +1,32 @@
 package me.hsgamer.mcserverupdater.updater;
 
-import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
+import me.hsgamer.mcserverupdater.api.JenkinsUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
-import org.json.JSONObject;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CanvasUpdater extends GithubReleaseUpdater {
-    private static final Pattern VERSION_PATTERN = Pattern.compile("\\[\"version\"\\s*=\\s*MC([\\d.]+)]");
-
+public class CanvasUpdater extends JenkinsUpdater {
     public CanvasUpdater(VersionQuery versionQuery) {
-        super(versionQuery, "CraftCanvasMC/Canvas");
-    }
-
-    private static String getVersion(String body) {
-        Matcher versionMatcher = VERSION_PATTERN.matcher(body);
-        if (!versionMatcher.find()) {
-            throw new IllegalStateException("Cannot find the version");
-        }
-        return versionMatcher.group(1);
+        super(versionQuery, "https://jenkins.canvasmc.io/");
     }
 
     @Override
-    public Pattern getArtifactPattern() {
+    public String[] getJob() {
+        return new String[]{"Canvas"};
+    }
+
+    @Override
+    public Pattern getArtifactRegex() {
         return Pattern.compile(".*\\.jar");
     }
 
     @Override
     public String getDefaultVersion() {
-        JSONObject release = getLatestRelease();
-        String body = release.getString("body");
-        return getVersion(body);
+        return "1.21.4";
     }
 
     @Override
-    public JSONObject getReleaseObject() {
-        return getReleaseByPredicate(release -> {
-            String body = release.getString("body");
-            return getVersion(body).equals(version);
-        });
+    protected String getBuild() {
+        return getSuccessfulBuildByName(name -> name.contains(version));
     }
 }
