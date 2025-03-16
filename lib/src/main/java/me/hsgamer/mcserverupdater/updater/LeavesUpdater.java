@@ -28,7 +28,7 @@ public class LeavesUpdater extends BibliothekUpdater {
 
     @Override
     protected String getDownloadName(JSONObject downloadObject) {
-        return "ghproxy";
+        return downloadObject.getString("name");
     }
 
     @Override
