@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdater {
@@ -26,6 +27,7 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
         this.updateBuilder = versionQuery.updateBuilder;
         this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
         this.build = getBuild();
+        debug("Build: " + build);
     }
 
     public abstract String[] getJob();
@@ -34,22 +36,57 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
 
     public abstract String getDefaultVersion();
 
-    private String getBuild() {
+    protected String getBuild() {
+        return getLatestSuccessfulBuild();
+    }
+
+    protected String getLatestSuccessfulBuild() {
         String url = getJobUrl();
         String api = url + "api/json";
         String treeUrl = api + "?tree=lastSuccessfulBuild[number]";
-        debug("Getting latest build from " + treeUrl);
+        debug("Getting build from " + treeUrl);
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(treeUrl));
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject build = jsonObject.getJSONObject("lastSuccessfulBuild");
-            String buildNumber = Integer.toString(build.getInt("number"));
-            debug("Latest build: " + buildNumber);
-            return buildNumber;
+            return Integer.toString(build.getInt("number"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected String getBuildByPredicate(String treeQuery, Predicate<JSONObject> predicate) {
+        String url = getJobUrl();
+        String api = url + "api/json";
+        String finalTreeQuery = treeQuery.equals("*") || treeQuery.contains("number")
+                ? treeQuery
+                : (treeQuery.isEmpty() ? "number" : "number," + treeQuery);
+        String treeUrl = api + "?tree=builds[" + finalTreeQuery + "]";
+        debug("Getting build from " + treeUrl);
+        try {
+            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(treeUrl));
+            InputStream inputStream = connection.getInputStream();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
+            JSONArray builds = jsonObject.getJSONArray("builds");
+            for (int i = 0; i < builds.length(); i++) {
+                JSONObject build = builds.getJSONObject(i);
+                if (predicate.test(build)) {
+                    return Integer.toString(build.getInt("number"));
+                }
+            }
+            throw new RuntimeException("Cannot find the build");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected String getSuccessfulBuildByName(Predicate<String> predicate) {
+        return getBuildByPredicate("displayName,result", build -> {
+            String name = build.getString("displayName");
+            String result = build.getString("result");
+            return result.equalsIgnoreCase("SUCCESS") && predicate.test(name);
+        });
     }
 
     @Override
