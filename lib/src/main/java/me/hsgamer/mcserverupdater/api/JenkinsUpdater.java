@@ -81,7 +81,7 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
         }
     }
 
-    protected String getSuccessfulBuildByName(Predicate<String> predicate) {
+    protected String getSuccessfulBuildByNameMatch(Predicate<String> predicate) {
         return getBuildByPredicate("displayName,result", build -> {
             String name = build.getString("displayName");
             String result = build.getString("result");

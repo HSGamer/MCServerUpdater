@@ -27,6 +27,6 @@ public class CanvasUpdater extends JenkinsUpdater {
 
     @Override
     protected String getBuild() {
-        return getSuccessfulBuildByName(name -> name.contains(version));
+        return getSuccessfulBuildByNameMatch(name -> name.contains(version));
     }
 }
