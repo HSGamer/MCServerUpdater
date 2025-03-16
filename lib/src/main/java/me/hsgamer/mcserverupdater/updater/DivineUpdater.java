@@ -2,7 +2,6 @@ package me.hsgamer.mcserverupdater.updater;
 
 import me.hsgamer.mcserverupdater.api.GithubReleaseUpdater;
 import me.hsgamer.mcserverupdater.util.VersionQuery;
-import me.hsgamer.mcserverupdater.util.VersionUtils;
 import org.json.JSONObject;
 
 import java.util.regex.Pattern;
