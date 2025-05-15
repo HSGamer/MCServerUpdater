@@ -24,11 +24,11 @@ public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     private final String buildUrl;
     private final boolean isRecommended;
 
-    public SpongeUpdater(VersionQuery versionQuery, boolean isForge, boolean isRecommended) {
+    public SpongeUpdater(VersionQuery versionQuery, Type type, boolean isRecommended) {
         this.updateBuilder = versionQuery.updateBuilder;
         this.isRecommended = isRecommended;
         String baseUrl = "https://dl-api-new.spongepowered.org/api/v2/groups/org.spongepowered/artifacts/";
-        this.artifactUrl = baseUrl + (isForge ? "spongeforge" : "spongevanilla");
+        this.artifactUrl = baseUrl + type.name;
         versionUrl = artifactUrl + "/versions";
         buildUrl = versionUrl + "/%s";
         this.version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
@@ -131,5 +131,21 @@ public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     @Override
     public Logger getLogger() {
         return updateBuilder.logger();
+    }
+
+    public enum Type {
+        SPONGE_VANILLA("spongevanilla"),
+        SPONGE_FORGE("spongeforge"),
+        SPONGE_NEO("spongeneo");
+
+        private final String name;
+
+        Type(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }

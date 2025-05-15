@@ -40,10 +40,10 @@ public final class UpdateBuilder {
         registerUpdater(PufferfishUpdater::new, "pufferfish");
         registerUpdater(versionQuery -> new FabricUpdater(versionQuery, true), "fabricmc", "fabric");
         registerUpdater(versionQuery -> new FabricUpdater(versionQuery, false), "fabricmc-dev", "fabric-dev");
-        registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, false, false), "spongevanilla");
-        registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, false, true), "spongevanilla-recommended");
-        registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, false), "spongeforge");
-        registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, true, true), "spongeforge-recommended");
+        for (SpongeUpdater.Type type : SpongeUpdater.Type.values()) {
+            registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, type, false), type.getName());
+            registerUpdater(versionQuery -> new SpongeUpdater(versionQuery, type, true), type.getName() + "-recommended");
+        }
         registerUpdater(versionQuery -> new MohistUpdater(versionQuery, "mohist"), "mohist");
         registerUpdater(PlazmaUpdater::new, "plazma");
         registerUpdater(DivineUpdater::new, "divine", "divinemc");
