@@ -25,10 +25,10 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
 
     public MohistUpdater(VersionQuery versionQuery, String project) {
         this.updateBuilder = versionQuery.updateBuilder;
-        projectUrl = String.format("https://mohistmc.com/api/v2/projects/%s", project);
+        projectUrl = String.format("https://api.mohistmc.com/project/%s", project);
         String versionUrl = projectUrl + "/%s";
-        buildUrl = versionUrl + "/builds";
-        downloadUrl = buildUrl + "/latest/download";
+        buildUrl = versionUrl + "/builds/latest";
+        downloadUrl = buildUrl + "/download";
 
         version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
     }
@@ -38,9 +38,9 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
         try {
             URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(projectUrl));
             InputStream inputStream = connection.getInputStream();
-            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-            JSONArray builds = jsonObject.getJSONArray("versions");
-            return builds.getString(builds.length() - 1);
+            JSONArray jsonObject = new JSONArray(new JSONTokener(inputStream));
+            JSONObject versionObject = jsonObject.getJSONObject(0);
+            return versionObject.getString("name");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -51,9 +51,7 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
         updateBuilder.debug("Getting download from " + formattedUrl);
         URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
         InputStream inputStream = connection.getInputStream();
-        JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-        JSONArray builds = jsonObject.getJSONArray("builds");
-        return builds.getJSONObject(builds.length() - 1); // Return the last build's JSONObject
+        return new JSONObject(new JSONTokener(inputStream));
     }
 
     @Override
