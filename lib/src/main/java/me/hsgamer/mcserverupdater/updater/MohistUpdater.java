@@ -19,7 +19,6 @@ import java.security.MessageDigest;
 public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String version;
-    private final String build;
     private final String projectUrl;
     private final String buildUrl;
     private final String downloadUrl;
@@ -29,10 +28,9 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
         projectUrl = String.format("https://mohistmc.com/api/v2/projects/%s", project);
         String versionUrl = projectUrl + "/%s";
         buildUrl = versionUrl + "/builds";
-        downloadUrl = buildUrl + "/%s/download";
+        downloadUrl = buildUrl + "/latest/download";
 
         version = versionQuery.isDefault ? getDefaultVersion() : versionQuery.version;
-        build = getBuild();
     }
 
     private String getDefaultVersion() {
@@ -43,21 +41,6 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("versions");
             return builds.getString(builds.length() - 1);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getBuild() {
-        String formattedUrl = String.format(buildUrl, version);
-        updateBuilder.debug("Getting latest build from " + formattedUrl);
-        try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
-            InputStream inputStream = connection.getInputStream();
-            JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
-            JSONArray builds = jsonObject.getJSONArray("builds");
-            int lastIndex = builds.length() - 1;
-            return Integer.toString(builds.getJSONObject(lastIndex).getInt("number"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +60,7 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     public String getChecksum() {
         try {
             JSONObject download = getDownload();
-            return download.getString("fileMd5");
+            return download.getString("file_sha256");
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -86,12 +69,12 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
 
     @Override
     public MessageDigest getMessageDigest() throws Exception {
-        return MessageDigest.getInstance("MD5");
+        return MessageDigest.getInstance("SHA-256");
     }
 
     @Override
     public String getFileUrl() {
-        return String.format(downloadUrl, version, build);
+        return String.format(downloadUrl, version);
     }
 
     @Override
