@@ -46,6 +46,7 @@ public final class UpdateBuilder {
         }
         registerUpdater(versionQuery -> new MohistUpdater(versionQuery, "mohist"), "mohist");
         registerUpdater(versionQuery -> new MohistUpdater(versionQuery, "banner"), "banner");
+        registerUpdater(versionQuery -> new MohistUpdater(versionQuery, "youer"), "youer");
         registerUpdater(PlazmaUpdater::new, "plazma");
         registerUpdater(DivineUpdater::new, "divine", "divinemc");
         registerUpdater(LeafUpdater::new, "leaf");
