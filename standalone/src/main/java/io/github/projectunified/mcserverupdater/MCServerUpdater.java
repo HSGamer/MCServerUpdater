@@ -1,9 +1,9 @@
 package io.github.projectunified.mcserverupdater;
 
+import io.github.projectunified.mcserverupdater.api.DebugConsumer;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import me.hsgamer.hscore.logger.jul.JulLogger;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -73,7 +73,22 @@ public final class MCServerUpdater {
                 .workingDirectory(workingDirectoryName)
                 .outputFile(outputName)
                 .checksumFile(checksumFileName)
-                .logger(new JulLogger(LOGGER));
+                .debugConsumer(new DebugConsumer() {
+                    @Override
+                    public void consume(String message) {
+                        LOGGER.fine(message);
+                    }
+
+                    @Override
+                    public void consume(Throwable throwable) {
+                        LOGGER.log(Level.FINE, throwable.getMessage(), throwable);
+                    }
+
+                    @Override
+                    public void consume(String message, Throwable throwable) {
+                        LOGGER.log(Level.FINE, message, throwable);
+                    }
+                });
 
         try {
             LOGGER.info("Start updating...");

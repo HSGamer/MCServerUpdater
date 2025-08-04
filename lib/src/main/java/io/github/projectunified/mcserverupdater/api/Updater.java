@@ -1,17 +1,14 @@
 package io.github.projectunified.mcserverupdater.api;
 
-import me.hsgamer.hscore.logger.common.LogLevel;
-import me.hsgamer.hscore.logger.common.Logger;
-
 import java.io.File;
 
 public interface Updater {
     boolean update(File file) throws Exception;
 
-    Logger getLogger();
+    DebugConsumer getDebugConsumer();
 
     default void debug(String message) {
-        getLogger().log(LogLevel.DEBUG, message);
+        getDebugConsumer().consume(message);
     }
 
     default void debug(String format, Object... args) {
@@ -19,10 +16,10 @@ public interface Updater {
     }
 
     default void debug(Throwable throwable) {
-        getLogger().log(LogLevel.DEBUG, throwable);
+        getDebugConsumer().consume(throwable);
     }
 
     default void debug(String message, Throwable throwable) {
-        getLogger().log(LogLevel.DEBUG, message, throwable);
+        getDebugConsumer().consume(message, throwable);
     }
 }

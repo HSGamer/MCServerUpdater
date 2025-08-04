@@ -2,7 +2,6 @@ package io.github.projectunified.mcserverupdater.api;
 
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.logger.common.Logger;
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 import org.json.JSONArray;
@@ -107,7 +106,7 @@ public abstract class GithubBranchUpdater implements SimpleChecksum, UrlInputStr
     }
 
     @Override
-    public Logger getLogger() {
-        return updateBuilder.logger();
+    public DebugConsumer getDebugConsumer() {
+        return updateBuilder.debugConsumer();
     }
 }

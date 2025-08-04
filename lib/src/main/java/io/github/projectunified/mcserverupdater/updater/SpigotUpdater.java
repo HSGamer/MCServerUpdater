@@ -1,9 +1,9 @@
 package io.github.projectunified.mcserverupdater.updater;
 
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
+import io.github.projectunified.mcserverupdater.api.DebugConsumer;
 import io.github.projectunified.mcserverupdater.api.Updater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.logger.common.Logger;
 import me.hsgamer.hscore.web.UserAgent;
 import me.hsgamer.hscore.web.WebUtils;
 
@@ -65,8 +65,8 @@ public class SpigotUpdater implements Updater {
     }
 
     @Override
-    public Logger getLogger() {
-        return updateBuilder.logger();
+    public DebugConsumer getDebugConsumer() {
+        return updateBuilder.debugConsumer();
     }
 
     private boolean runBuildTools(File buildTools, File outputDir) throws IOException, InterruptedException {

@@ -1,30 +1,25 @@
 package io.github.projectunified.mcserverupdater;
 
 import io.github.projectunified.mcserverupdater.api.Checksum;
+import io.github.projectunified.mcserverupdater.api.DebugConsumer;
 import io.github.projectunified.mcserverupdater.api.Updater;
 import io.github.projectunified.mcserverupdater.updater.*;
 import io.github.projectunified.mcserverupdater.util.Utils;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.collections.map.CaseInsensitiveStringLinkedMap;
-import me.hsgamer.hscore.logger.common.LogLevel;
-import me.hsgamer.hscore.logger.common.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
  * Where to create the update process
  */
 public final class UpdateBuilder {
-    private static final Map<String, Function<VersionQuery, Updater>> UPDATERS = new CaseInsensitiveStringLinkedMap<>();
+    private static final Map<String, Function<VersionQuery, Updater>> UPDATERS = new HashMap<>();
 
     static {
         registerUpdater(versionQuery -> new PaperUpdater(versionQuery, "paper"), "paper", "papermc", "paperspigot");
@@ -66,7 +61,7 @@ public final class UpdateBuilder {
     private ChecksumSupplier checksumSupplier = () -> "";
     private ChecksumConsumer checksumConsumer = s -> {
     };
-    private Logger logger = (logLevel, s) -> {
+    private DebugConsumer debugConsumer = s -> {
     };
 
     private UpdateBuilder(String project) {
@@ -180,24 +175,14 @@ public final class UpdateBuilder {
     }
 
     /**
-     * Set the logger
-     *
-     * @param logger the logger
-     * @return the update process
-     */
-    public UpdateBuilder logger(Logger logger) {
-        this.logger = logger;
-        return this;
-    }
-
-    /**
      * Set the debug consumer
      *
      * @param debugConsumer the debug consumer
      * @return the update process
      */
-    public UpdateBuilder debugConsumer(Consumer<String> debugConsumer) {
-        return logger((logLevel, s) -> debugConsumer.accept("[" + logLevel.name() + "] " + s));
+    public UpdateBuilder debugConsumer(DebugConsumer debugConsumer) {
+        this.debugConsumer = debugConsumer;
+        return this;
     }
 
     /**
@@ -283,12 +268,12 @@ public final class UpdateBuilder {
     }
 
     /**
-     * Get the logger
+     * Get the debug consumer
      *
-     * @return the logger
+     * @return the debug consumer
      */
-    public Logger logger() {
-        return logger;
+    public DebugConsumer debugConsumer() {
+        return debugConsumer;
     }
 
     /**
@@ -297,7 +282,7 @@ public final class UpdateBuilder {
      * @param message the message
      */
     public void debug(String message) {
-        logger.log(LogLevel.DEBUG, message);
+        debugConsumer.consume(message);
     }
 
     /**
@@ -308,7 +293,7 @@ public final class UpdateBuilder {
     public CompletableFuture<UpdateStatus> executeAsync() {
         return CompletableFuture.supplyAsync(() -> {
             VersionQuery versionQuery = new VersionQuery(version, this);
-            Updater update = Optional.ofNullable(UPDATERS.get(project)).map(f -> f.apply(versionQuery)).orElse(null);
+            Updater update = Optional.ofNullable(UPDATERS.get(project.toLowerCase(Locale.ROOT))).map(f -> f.apply(versionQuery)).orElse(null);
             if (update == null) {
                 return UpdateStatus.NO_PROJECT;
             }
