@@ -1,12 +1,12 @@
 package io.github.projectunified.mcserverupdater.updater;
 
-import me.hsgamer.hscore.logger.common.Logger;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.api.FileDigestChecksum;
 import io.github.projectunified.mcserverupdater.api.UrlInputStreamUpdater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
+import me.hsgamer.hscore.logger.common.Logger;
+import me.hsgamer.hscore.web.UserAgent;
+import me.hsgamer.hscore.web.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;

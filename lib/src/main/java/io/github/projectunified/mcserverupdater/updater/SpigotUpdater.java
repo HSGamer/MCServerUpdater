@@ -1,11 +1,11 @@
 package io.github.projectunified.mcserverupdater.updater;
 
-import me.hsgamer.hscore.logger.common.Logger;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.api.Updater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
+import me.hsgamer.hscore.logger.common.Logger;
+import me.hsgamer.hscore.web.UserAgent;
+import me.hsgamer.hscore.web.WebUtils;
 
 import java.io.File;
 import java.io.IOException;

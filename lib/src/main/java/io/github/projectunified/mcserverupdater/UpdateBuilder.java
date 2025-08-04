@@ -1,14 +1,13 @@
 package io.github.projectunified.mcserverupdater;
 
+import io.github.projectunified.mcserverupdater.api.Checksum;
+import io.github.projectunified.mcserverupdater.api.Updater;
 import io.github.projectunified.mcserverupdater.updater.*;
+import io.github.projectunified.mcserverupdater.util.Utils;
+import io.github.projectunified.mcserverupdater.util.VersionQuery;
 import me.hsgamer.hscore.collections.map.CaseInsensitiveStringLinkedMap;
 import me.hsgamer.hscore.logger.common.LogLevel;
 import me.hsgamer.hscore.logger.common.Logger;
-import io.github.projectunified.mcserverupdater.api.Checksum;
-import io.github.projectunified.mcserverupdater.api.Updater;
-import me.hsgamer.mcserverupdater.updater.*;
-import io.github.projectunified.mcserverupdater.util.Utils;
-import io.github.projectunified.mcserverupdater.util.VersionQuery;
 
 import java.io.File;
 import java.io.IOException;
