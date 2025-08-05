@@ -12,13 +12,6 @@
     <artifactId>mc-server-updater-lib</artifactId>
     <name>MCServerUpdater Library</name>
 
-    <repositories>
-        <repository>
-            <id>codemc-repo</id>
-            <url>https://repo.codemc.io/repository/maven-public/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.json</groupId>
