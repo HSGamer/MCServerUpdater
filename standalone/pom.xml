@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mc-server-updater-standalone</artifactId>
+    <name>MCServerUpdater Standalone</name>
 
     <build>
         <finalName>${project.parent.name}</finalName>

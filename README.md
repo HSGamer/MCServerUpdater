@@ -5,7 +5,7 @@
 ## Download
 
 Download the latest version of MCServerUpdater
-from [here](https://github.com/HSGamer/MCServerUpdater/releases)
+from [here](https://github.com/ProjectUnified/MCServerUpdater/releases)
 
 ## Arguments
 
@@ -40,19 +40,9 @@ Option                           Description
 
 ```xml
 
-<repositories>
-    <repository>
-        <id>codemc-repo</id>
-        <url>https://repo.codemc.io/repository/maven-public/</url>
-    </repository>
-</repositories>
-```
-
-```xml
-
 <dependencies>
     <dependency>
-        <groupId>me.hsgamer</groupId>
+        <groupId>io.github.projectunified</groupId>
         <artifactId>mc-server-updater-lib</artifactId>
         <version>VERSION</version>
     </dependency>
@@ -62,12 +52,8 @@ Option                           Description
 * Gradle
 
 ```groovy
-repositories {
-    maven { url = "https://repo.codemc.io/repository/maven-public/" }
-}
-
 dependencies {
-    compileOnly(group: 'me.hsgamer', name: 'mc-server-updater-lib', version: 'VERSION')
+    compileOnly(group: 'io.github.projectunified', name: 'mc-server-updater-lib', version: 'VERSION')
 }
 ```
 

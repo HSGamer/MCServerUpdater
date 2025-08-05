@@ -7,30 +7,50 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 11
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.6.2
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: '21'
+          distribution: 'temurin'
           cache: maven
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_SECRET_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
-      - name: Publish Package
-        run: mvn --batch-mode deploy
+        run: mvn clean install
+
+      - name: Deploy to Central
+        run: mvn deploy -P central
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4.5.0
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Generate Javadocs
+        run: mvn javadoc:aggregate-no-fork
+      - name: Deploy Javadocs
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: "MCServerUpdater"
-          path: "standalone/target/MCServerUpdater.jar"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/reports/apidocs
+
       - name: "Release"
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
           prerelease: false
-          files: |
-            standalone/target/MCServerUpdater.jar
-            lib/target/mc-server-updater-lib-*.jar
+          files: "**/target/*.jar"
