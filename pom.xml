@@ -126,7 +126,7 @@
                         <configuration>
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>true</autoPublish>
-                            <deploymentName>UniDialog</deploymentName>
+                            <deploymentName>MCServerUpdater</deploymentName>
                         </configuration>
                     </plugin>
                 </plugins>
