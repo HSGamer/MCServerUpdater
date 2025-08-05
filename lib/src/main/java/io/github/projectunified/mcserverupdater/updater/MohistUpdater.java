@@ -3,10 +3,9 @@ package io.github.projectunified.mcserverupdater.updater;
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.api.DebugConsumer;
 import io.github.projectunified.mcserverupdater.api.FileDigestChecksum;
-import io.github.projectunified.mcserverupdater.api.UrlInputStreamUpdater;
+import io.github.projectunified.mcserverupdater.api.InputStreamUpdater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -16,7 +15,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 
-public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
+public class MohistUpdater implements InputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String version;
     private final String projectUrl;
@@ -36,7 +35,7 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     private String getDefaultVersion() {
         updateBuilder.debug("Getting default version from " + projectUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(projectUrl));
+            URLConnection connection = WebUtils.openConnection(projectUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONArray jsonObject = new JSONArray(new JSONTokener(inputStream));
             JSONObject versionObject = jsonObject.getJSONObject(0);
@@ -49,7 +48,7 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     private JSONObject getDownload() throws IOException {
         String formattedUrl = String.format(buildUrl, version);
         updateBuilder.debug("Getting download from " + formattedUrl);
-        URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
+        URLConnection connection = WebUtils.openConnection(formattedUrl, updateBuilder);
         InputStream inputStream = connection.getInputStream();
         return new JSONObject(new JSONTokener(inputStream));
     }
@@ -71,8 +70,8 @@ public class MohistUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     }
 
     @Override
-    public String getFileUrl() {
-        return String.format(downloadUrl, version);
+    public InputStream getInputStream() {
+        return WebUtils.getInputStreamOrNull(String.format(downloadUrl, version), updateBuilder);
     }
 
     @Override

@@ -3,10 +3,9 @@ package io.github.projectunified.mcserverupdater.updater;
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.api.DebugConsumer;
 import io.github.projectunified.mcserverupdater.api.FileDigestChecksum;
-import io.github.projectunified.mcserverupdater.api.UrlInputStreamUpdater;
+import io.github.projectunified.mcserverupdater.api.InputStreamUpdater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -16,7 +15,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 
-public class PaperUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
+public class PaperUpdater implements InputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String projectUrl;
     private final String versionUrl;
@@ -36,7 +35,7 @@ public class PaperUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
     private String getDefaultVersion() {
         updateBuilder.debug("Getting default version from " + projectUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(versionUrl));
+            URLConnection connection = WebUtils.openConnection(versionUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("versions");
@@ -50,7 +49,7 @@ public class PaperUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
     private JSONObject getDownload() throws IOException {
         String formattedUrl = String.format(buildUrl, version);
         updateBuilder.debug("Getting download from " + formattedUrl);
-        URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
+        URLConnection connection = WebUtils.openConnection(formattedUrl, updateBuilder);
         InputStream inputStream = connection.getInputStream();
         JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
         JSONObject downloads = jsonObject.getJSONObject("downloads");
@@ -69,18 +68,18 @@ public class PaperUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
             JSONObject checksumObject = application.getJSONObject("checksums");
             return checksumObject.getString("sha256");
         } catch (Exception e) {
-            e.printStackTrace();
+            debug("Failed to get checksum for Paper download", e);
             return null;
         }
     }
 
     @Override
-    public String getFileUrl() {
+    public InputStream getInputStream() {
         try {
             JSONObject application = getDownload();
-            return application.getString("url");
+            return WebUtils.getInputStreamOrNull(application.getString("url"), updateBuilder);
         } catch (IOException e) {
-            e.printStackTrace();
+            debug("Failed to get input stream for Paper download", e);
             return null;
         }
     }

@@ -63,6 +63,7 @@ public final class UpdateBuilder {
     };
     private DebugConsumer debugConsumer = s -> {
     };
+    private String userAgent;
 
     private UpdateBuilder(String project) {
         this.project = project;
@@ -228,6 +229,17 @@ public final class UpdateBuilder {
     }
 
     /**
+     * Set the user agent for the update process
+     *
+     * @param userAgent the user agent string
+     * @return the update process
+     */
+    public UpdateBuilder userAgent(String userAgent) {
+        this.userAgent = userAgent;
+        return this;
+    }
+
+    /**
      * Get the checksum consumer
      *
      * @return the checksum consumer
@@ -274,6 +286,15 @@ public final class UpdateBuilder {
      */
     public DebugConsumer debugConsumer() {
         return debugConsumer;
+    }
+
+    /**
+     * Get the user agent
+     *
+     * @return the user agent string
+     */
+    public String userAgent() {
+        return userAgent;
     }
 
     /**

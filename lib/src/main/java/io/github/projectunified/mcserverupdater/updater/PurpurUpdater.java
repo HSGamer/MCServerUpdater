@@ -3,10 +3,9 @@ package io.github.projectunified.mcserverupdater.updater;
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.api.DebugConsumer;
 import io.github.projectunified.mcserverupdater.api.FileDigestChecksum;
-import io.github.projectunified.mcserverupdater.api.UrlInputStreamUpdater;
+import io.github.projectunified.mcserverupdater.api.InputStreamUpdater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -16,7 +15,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 
-public class PurpurUpdater implements FileDigestChecksum, UrlInputStreamUpdater {
+public class PurpurUpdater implements FileDigestChecksum, InputStreamUpdater {
     private static final String URL = "https://api.purpurmc.org/v2/purpur/";
     private static final String VERSION_URL = URL + "%s/";
     private static final String BUILD_URL = VERSION_URL + "%s/";
@@ -34,7 +33,7 @@ public class PurpurUpdater implements FileDigestChecksum, UrlInputStreamUpdater 
     private String getDefaultVersion() {
         updateBuilder.debug("Getting default version from " + URL);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(URL));
+            URLConnection connection = WebUtils.openConnection(URL, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("versions");
@@ -48,7 +47,7 @@ public class PurpurUpdater implements FileDigestChecksum, UrlInputStreamUpdater 
         String url = String.format(VERSION_URL, version);
         updateBuilder.debug("Getting latest build from " + url);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            URLConnection connection = WebUtils.openConnection(url, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject builds = jsonObject.getJSONObject("builds");
@@ -64,8 +63,8 @@ public class PurpurUpdater implements FileDigestChecksum, UrlInputStreamUpdater 
     }
 
     @Override
-    public String getFileUrl() {
-        return String.format(DOWNLOAD_URL, version, build);
+    public InputStream getInputStream() {
+        return WebUtils.getInputStreamOrNull(String.format(DOWNLOAD_URL, version, build), updateBuilder);
     }
 
     @Override
@@ -73,12 +72,12 @@ public class PurpurUpdater implements FileDigestChecksum, UrlInputStreamUpdater 
         String url = String.format(BUILD_URL, version, build);
         updateBuilder.debug("Getting checksum from " + url);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            URLConnection connection = WebUtils.openConnection(url, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             return jsonObject.getString("md5");
         } catch (IOException e) {
-            e.printStackTrace();
+            debug("Failed to get checksum for Purpur download", e);
             return null;
         }
     }

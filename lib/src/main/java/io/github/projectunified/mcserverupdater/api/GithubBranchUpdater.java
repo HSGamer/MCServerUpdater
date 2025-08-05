@@ -2,8 +2,7 @@ package io.github.projectunified.mcserverupdater.api;
 
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -14,7 +13,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
 
-public abstract class GithubBranchUpdater implements SimpleChecksum, UrlInputStreamUpdater {
+public abstract class GithubBranchUpdater implements SimpleChecksum, InputStreamUpdater {
     protected final UpdateBuilder updateBuilder;
     protected final String version;
     protected final String build;
@@ -42,7 +41,7 @@ public abstract class GithubBranchUpdater implements SimpleChecksum, UrlInputStr
         String url = String.format(refLatestCommitUrl, getBranch());
         debug("Getting latest build from " + url);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            URLConnection connection = WebUtils.openConnection(url, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             String sha = jsonObject.getString("sha");
@@ -57,7 +56,7 @@ public abstract class GithubBranchUpdater implements SimpleChecksum, UrlInputStr
         String url = String.format(filesUrl, build);
         debug("Getting files from " + url);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            URLConnection connection = WebUtils.openConnection(url, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject object = new JSONObject(new JSONTokener(inputStream));
             JSONArray array = object.getJSONArray("tree");
@@ -88,7 +87,7 @@ public abstract class GithubBranchUpdater implements SimpleChecksum, UrlInputStr
     }
 
     @Override
-    public String getFileUrl() {
+    public InputStream getInputStream() {
         String build = getBuild();
         if (build == null) {
             return null;
@@ -97,7 +96,8 @@ public abstract class GithubBranchUpdater implements SimpleChecksum, UrlInputStr
         if (file == null) {
             return null;
         }
-        return String.format(downloadUrl, build, file);
+        String url = String.format(downloadUrl, build, file);
+        return WebUtils.getInputStreamOrNull(url, updateBuilder);
     }
 
     @Override

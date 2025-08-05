@@ -20,11 +20,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>me.hsgamer</groupId>
-            <artifactId>hscore-web</artifactId>
-            <version>${core.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20250517</version>

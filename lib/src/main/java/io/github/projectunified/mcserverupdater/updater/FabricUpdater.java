@@ -2,11 +2,10 @@ package io.github.projectunified.mcserverupdater.updater;
 
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.api.DebugConsumer;
+import io.github.projectunified.mcserverupdater.api.InputStreamUpdater;
 import io.github.projectunified.mcserverupdater.api.SimpleChecksum;
-import io.github.projectunified.mcserverupdater.api.UrlInputStreamUpdater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -15,7 +14,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-public class FabricUpdater implements UrlInputStreamUpdater, SimpleChecksum {
+public class FabricUpdater implements InputStreamUpdater, SimpleChecksum {
     private static final String BASE_URL = "https://meta.fabricmc.net/v2/versions";
     private static final String GAME_URL = BASE_URL + "/game";
     private static final String LOADER_URL = BASE_URL + "/loader";
@@ -50,7 +49,7 @@ public class FabricUpdater implements UrlInputStreamUpdater, SimpleChecksum {
     private String getLatestVersion(String url) {
         updateBuilder.debug("Getting latest version from " + url);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            URLConnection connection = WebUtils.openConnection(url, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONArray jsonArray = new JSONArray(new JSONTokener(inputStream));
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -62,7 +61,7 @@ public class FabricUpdater implements UrlInputStreamUpdater, SimpleChecksum {
             }
             return null;
         } catch (Exception e) {
-            e.printStackTrace();
+            debug("Failed to get latest version from " + url, e);
             return null;
         }
     }
@@ -84,14 +83,15 @@ public class FabricUpdater implements UrlInputStreamUpdater, SimpleChecksum {
     }
 
     @Override
-    public String getFileUrl() {
+    public InputStream getInputStream() {
         String[] split = build.split(";");
         if (split.length != 2) {
             return null;
         }
         String loaderVersion = split[0];
         String installerVersion = split[1];
-        return getLatestDownloadUrl(version, loaderVersion, installerVersion);
+        String url = getLatestDownloadUrl(version, loaderVersion, installerVersion);
+        return WebUtils.getInputStreamOrNull(url, updateBuilder);
     }
 
     @Override

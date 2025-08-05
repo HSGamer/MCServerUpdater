@@ -3,10 +3,9 @@ package io.github.projectunified.mcserverupdater.updater;
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.api.DebugConsumer;
 import io.github.projectunified.mcserverupdater.api.FileDigestChecksum;
-import io.github.projectunified.mcserverupdater.api.UrlInputStreamUpdater;
+import io.github.projectunified.mcserverupdater.api.InputStreamUpdater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -15,7 +14,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 
-public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
+public class SpongeUpdater implements InputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String version;
     private final String build;
@@ -38,7 +37,7 @@ public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     private String getDefaultVersion() {
         updateBuilder.debug("Get default version from " + artifactUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactUrl));
+            URLConnection connection = WebUtils.openConnection(artifactUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject tagsObject = jsonObject.getJSONObject("tags");
@@ -53,7 +52,7 @@ public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
         String url = getQueryReadyFetchUrl(versionUrl) + "&limit=1&tags=,minecraft:" + version;
         updateBuilder.debug("Get latest build from " + url);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            URLConnection connection = WebUtils.openConnection(url, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject artifacts = jsonObject.getJSONObject("artifacts");
@@ -74,7 +73,7 @@ public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     private JSONObject getJarInfo(String build) throws Exception {
         String url = String.format(buildUrl, build);
         updateBuilder.debug("Fetching " + url);
-        URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+        URLConnection connection = WebUtils.openConnection(url, updateBuilder);
         InputStream inputStream = connection.getInputStream();
         JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
         JSONArray assets = jsonObject.getJSONArray("assets");
@@ -101,15 +100,16 @@ public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
     }
 
     @Override
-    public String getFileUrl() {
+    public InputStream getInputStream() {
         try {
             JSONObject jarInfo = getJarInfo(build);
             if (jarInfo == null) {
                 return null;
             }
-            return jarInfo.getString("downloadUrl");
+            String downloadUrl = jarInfo.getString("downloadUrl");
+            return WebUtils.getInputStreamOrNull(downloadUrl, updateBuilder);
         } catch (Exception e) {
-            debug(e);
+            debug("Failed to get input stream for Sponge download", e);
             return null;
         }
     }
@@ -123,7 +123,7 @@ public class SpongeUpdater implements UrlInputStreamUpdater, FileDigestChecksum 
             }
             return jarInfo.getString("md5");
         } catch (Exception e) {
-            e.printStackTrace();
+            debug("Failed to get checksum for Sponge download", e);
             return null;
         }
     }

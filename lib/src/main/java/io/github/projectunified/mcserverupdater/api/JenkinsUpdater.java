@@ -2,8 +2,7 @@ package io.github.projectunified.mcserverupdater.api;
 
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -45,7 +44,7 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
         String treeUrl = api + "?tree=lastSuccessfulBuild[number]";
         debug("Getting build from " + treeUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(treeUrl));
+            URLConnection connection = WebUtils.openConnection(treeUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONObject build = jsonObject.getJSONObject("lastSuccessfulBuild");
@@ -64,7 +63,7 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
         String treeUrl = api + "?tree=builds[" + finalTreeQuery + "]";
         debug("Getting build from " + treeUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(treeUrl));
+            URLConnection connection = WebUtils.openConnection(treeUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("builds");
@@ -103,7 +102,7 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
         String url = getArtifactUrl();
         debug("Downloading " + url);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(url));
+            URLConnection connection = WebUtils.openConnection(url, updateBuilder);
             return connection.getInputStream();
         } catch (IOException e) {
             debug(e);
@@ -132,7 +131,7 @@ public abstract class JenkinsUpdater implements SimpleChecksum, InputStreamUpdat
         String artifact = "INVALID";
         debug("Getting artifact from " + artifactListUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(artifactListUrl));
+            URLConnection connection = WebUtils.openConnection(artifactListUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray artifacts = jsonObject.getJSONArray("artifacts");

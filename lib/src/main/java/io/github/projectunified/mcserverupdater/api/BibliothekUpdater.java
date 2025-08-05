@@ -2,8 +2,7 @@ package io.github.projectunified.mcserverupdater.api;
 
 import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -12,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-public abstract class BibliothekUpdater implements UrlInputStreamUpdater, FileDigestChecksum {
+public abstract class BibliothekUpdater implements InputStreamUpdater, FileDigestChecksum {
     private final UpdateBuilder updateBuilder;
     private final String version;
     private final String build;
@@ -44,7 +43,7 @@ public abstract class BibliothekUpdater implements UrlInputStreamUpdater, FileDi
     private String getDefaultVersion() {
         updateBuilder.debug("Getting default version from " + projectUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(projectUrl));
+            URLConnection connection = WebUtils.openConnection(projectUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("versions");
@@ -58,7 +57,7 @@ public abstract class BibliothekUpdater implements UrlInputStreamUpdater, FileDi
         String formattedUrl = String.format(versionUrl, version);
         updateBuilder.debug("Getting latest build from " + formattedUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
+            URLConnection connection = WebUtils.openConnection(formattedUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray builds = jsonObject.getJSONArray("builds");
@@ -71,7 +70,7 @@ public abstract class BibliothekUpdater implements UrlInputStreamUpdater, FileDi
     private JSONObject getDownload() throws IOException {
         String formattedUrl = String.format(buildUrl, version, build);
         updateBuilder.debug("Getting download from " + formattedUrl);
-        URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(formattedUrl));
+        URLConnection connection = WebUtils.openConnection(formattedUrl, updateBuilder);
         InputStream inputStream = connection.getInputStream();
         JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
         JSONObject downloads = jsonObject.getJSONObject("downloads");
@@ -84,13 +83,13 @@ public abstract class BibliothekUpdater implements UrlInputStreamUpdater, FileDi
             JSONObject application = getDownload();
             return application.getString(getChecksumAlgorithm());
         } catch (Exception e) {
-            e.printStackTrace();
+            debug("Failed to get checksum", e);
             return null;
         }
     }
 
     @Override
-    public final String getFileUrl() {
+    public InputStream getInputStream() {
         String downloadName;
         try {
             JSONObject application = getDownload();
@@ -99,7 +98,8 @@ public abstract class BibliothekUpdater implements UrlInputStreamUpdater, FileDi
             debug(e);
             return null;
         }
-        return String.format(downloadUrl, version, build, downloadName);
+        String url = String.format(downloadUrl, version, build, downloadName);
+        return WebUtils.getInputStreamOrNull(url, updateBuilder);
     }
 
     @Override

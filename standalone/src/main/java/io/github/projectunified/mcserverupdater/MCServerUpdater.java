@@ -13,6 +13,7 @@ import java.util.logging.*;
 
 public final class MCServerUpdater {
     public static final Logger LOGGER = Logger.getLogger("MCServerUpdater");
+    private static final String USER_AGENT = "MCServerUpdater (https://github.com/HSGamer/MCServerUpdater)";
 
     static {
         ConsoleHandler handler = new ConsoleHandler();
@@ -73,6 +74,7 @@ public final class MCServerUpdater {
                 .workingDirectory(workingDirectoryName)
                 .outputFile(outputName)
                 .checksumFile(checksumFileName)
+                .userAgent(USER_AGENT)
                 .debugConsumer(new DebugConsumer() {
                     @Override
                     public void consume(String message) {
