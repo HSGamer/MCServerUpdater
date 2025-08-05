@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"io.github.projectunified.mcserverupdater"},{"l":"io.github.projectunified.mcserverupdater.api"},{"l":"io.github.projectunified.mcserverupdater.updater"},{"l":"io.github.projectunified.mcserverupdater.util"}];updateSearchResults();
