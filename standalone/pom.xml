@@ -12,6 +12,11 @@
     <artifactId>mc-server-updater-standalone</artifactId>
     <name>MCServerUpdater Standalone</name>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
     <build>
         <finalName>${project.parent.name}</finalName>
         <plugins>
