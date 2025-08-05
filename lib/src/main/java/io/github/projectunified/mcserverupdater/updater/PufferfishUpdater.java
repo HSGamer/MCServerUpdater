@@ -2,8 +2,7 @@ package io.github.projectunified.mcserverupdater.updater;
 
 import io.github.projectunified.mcserverupdater.api.JenkinsUpdater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -34,7 +33,7 @@ public class PufferfishUpdater extends JenkinsUpdater {
         String jobsUrl = jenkinsUrl + "api/json?tree=jobs[name]";
         debug("Getting jobs from " + jobsUrl);
         try {
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(jobsUrl));
+            URLConnection connection = WebUtils.openConnection(jobsUrl, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(new JSONTokener(inputStream));
             JSONArray jobsArray = jsonObject.getJSONArray("jobs");

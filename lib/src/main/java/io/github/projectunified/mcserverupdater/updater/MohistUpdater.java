@@ -59,7 +59,7 @@ public class MohistUpdater implements InputStreamUpdater, FileDigestChecksum {
             JSONObject download = getDownload();
             return download.getString("file_sha256");
         } catch (Exception e) {
-            e.printStackTrace();
+            debug("Failed to get checksum", e);
             return null;
         }
     }

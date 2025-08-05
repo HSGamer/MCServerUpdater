@@ -4,8 +4,7 @@ import io.github.projectunified.mcserverupdater.UpdateBuilder;
 import io.github.projectunified.mcserverupdater.api.DebugConsumer;
 import io.github.projectunified.mcserverupdater.api.Updater;
 import io.github.projectunified.mcserverupdater.util.VersionQuery;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
+import io.github.projectunified.mcserverupdater.util.WebUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,12 +27,12 @@ public class SpigotUpdater implements Updater {
         try {
             String buildToolsURL = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar";
             updateBuilder.debug("Downloading BuildTools from " + buildToolsURL);
-            URLConnection connection = UserAgent.CHROME.assignToConnection(WebUtils.createConnection(buildToolsURL));
+            URLConnection connection = WebUtils.openConnection(buildToolsURL, updateBuilder);
             InputStream inputStream = connection.getInputStream();
             Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return file;
         } catch (IOException e) {
-            e.printStackTrace();
+            debug("Failed to download BuildTools", e);
             return null;
         }
     }
