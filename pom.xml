@@ -17,41 +17,6 @@
     <name>MCServerUpdater</name>
     <description>A program to update Minecraft server jar</description>
 
-    <profiles>
-        <profile>
-            <id>jenkins</id>
-            <activation>
-                <property>
-                    <name>env.JENKINS_HOME</name>
-                </property>
-            </activation>
-            <distributionManagement>
-                <repository>
-                    <id>codemc-releases</id>
-                    <url>https://repo.codemc.io/repository/maven-releases/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>codemc-snapshots</id>
-                    <url>https://repo.codemc.io/repository/maven-snapshots/</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-        <profile>
-            <id>github</id>
-            <activation>
-                <property>
-                    <name>env.GITHUB_WORKFLOW</name>
-                </property>
-            </activation>
-            <distributionManagement>
-                <repository>
-                    <id>github</id>
-                    <url>https://maven.pkg.github.com/HSGamer/MCServerUpdater</url>
-                </repository>
-            </distributionManagement>
-        </profile>
-    </profiles>
-
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
